@@ -42,8 +42,13 @@ win32*:!*msvc2012:*msvc* {
 
 
 HEADERS += \
-	src/mainwidget.h
+	src/mainwidget.h \
+    src/mainwindow.h
 
 SOURCES += \
 	src/main.cpp \
-	src/mainwidget.cpp
+	src/mainwidget.cpp \
+    src/mainwindow.cpp
+
+FORMS += \
+    src/mainwindow.ui

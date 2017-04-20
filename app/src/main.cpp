@@ -2,6 +2,7 @@
 #include <QSurfaceFormat>
 
 #include "mainwidget.h"
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
@@ -23,8 +24,8 @@ int main(int argc, char *argv[])
 
 //	QSurfaceFormat::setDefaultFormat(format);
 
-	MainWidget widget;
-	widget.show();
+	MainWindow window;
+	window.show();
 
 	return app.exec();
 }

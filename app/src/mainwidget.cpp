@@ -19,24 +19,6 @@ MainWidget::~MainWidget()
 {
 }
 
-void MainWidget::mouseMoveEvent(QMouseEvent* e)
-{
-	mousePosition = QVector2D(e->localPos());
-}
-
-
-void MainWidget::initializeGL()
-{
-	initializeOpenGLFunctions();
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-	initShaders();
-
-	connect(&timer, &QTimer::timeout, this, [this](){update();});
-	timer.start(10);
-}
-
 static const char* vshader =
 	"#ifdef GL_ES\n"
 	"precision highp int;\n"
@@ -48,54 +30,73 @@ static const char* vshader =
 
 	"void main()\n"
 	"{\n"
-		"gl_Position = matrix * vertexPosition;\n"
-	"}\n";
-
-static const char* fshader =
-	"#ifdef GL_ES\n"
-	"precision highp int;\n"
-	"precision highp float;\n"
-	"#endif\n"
-
-	"void main()\n"
-	"{\n"
-		"gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);\n"
+	"gl_Position = matrix * vertexPosition;\n"
 	"}\n";
 
 
-
-void MainWidget::initShaders()
+void MainWidget::setFragmentShader(const QString& shaderSource)
 {
+	QMutexLocker locker(&m);
+
+	if (program.isLinked())
+	{
+		program.release();
+		program.removeAllShaders();
+	}
+
+	if (!_fragmentShader->compileSourceCode(shaderSource))
+	{
+		qDebug() << "Error compiling fragment shader:";
+		qDebug() << _fragmentShader->log();
+		return;
+	}
+
+	if (!program.addShader(_fragmentShader.get()))
+		qDebug() << "Failed to add fragment shader:\n" << program.log();
+
 	// Compile vertex shader
 	if (!program.addShaderFromSourceCode(QOpenGLShader::Vertex, vshader))
-		close();
+		qDebug() << "Failed to add vertex shader:\n" << program.log();
 
-	// Compile fragment shader
-	if (!program.addShaderFromSourceCode(QOpenGLShader::Fragment, fshader))
-		close();
-
-	// Link shader pipeline
 	if (!program.link())
-		close();
+		qDebug() << "Failed to link the program\n:" << program.log();
 
-	const QString log = program.log();
-	if (!log.isEmpty())
-		qDebug() << log;
-
-	// Bind shader pipeline for use
 	if (!program.bind())
-		close();
+		qDebug() << "Failed to bind the program\n:" << program.log();
+}
+
+void MainWidget::mouseMoveEvent(QMouseEvent* e)
+{
+	mousePosition = QVector2D(e->localPos());
+}
+
+void MainWidget::initializeGL()
+{
+	initializeOpenGLFunctions();
+
+	_fragmentShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Fragment);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	LogGlError;
+
+	connect(&timer, &QTimer::timeout, this, [this](){update();});
+	timer.start(10);
 }
 
 void MainWidget::resizeGL(int w, int h)
 {
-	// TODO: has no effect in QOpenGLWidget?
+	// TODO: manually calling glViewport() has no effect in QOpenGLWidget?
 //	const auto scale = devicePixelRatio();
 //	glViewport(0, 0, scale * w, scale * h);
 }
 
 void MainWidget::paintGL()
 {
+	QMutexLocker locker(&m);
+
+	if (!program.isLinked())
+		return;
+
 	const float w = (float)width(), h = (float)height();
 	const GLfloat vertices[2 * 3 * 3] = {
 		0.0f, 0.0f, 0.0f,
