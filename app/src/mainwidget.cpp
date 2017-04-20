@@ -38,13 +38,15 @@ void MainWidget::setFragmentShader(const QString& shaderSource)
 {
 	QMutexLocker locker(&m);
 
-	if (_program && _program->isLinked())
+	if (_program)
 	{
 		_program->release();
 		_program->removeAllShaders();
 	}
 
 	_program = std::make_unique<QOpenGLShaderProgram>();
+	_fragmentShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Fragment);
+
 
 	if (!_fragmentShader->compileSourceCode(shaderSource))
 	{
@@ -75,8 +77,6 @@ void MainWidget::mouseMoveEvent(QMouseEvent* e)
 void MainWidget::initializeGL()
 {
 	initializeOpenGLFunctions();
-
-	_fragmentShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Fragment);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	LogGlError;
