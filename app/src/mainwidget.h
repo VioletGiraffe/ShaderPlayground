@@ -30,7 +30,7 @@ private:
 	QMutex m;
 
 	QTimer timer;
-	QOpenGLShaderProgram program;
+	std::unique_ptr<QOpenGLShaderProgram> _program;
 	std::unique_ptr<QOpenGLShader> _fragmentShader;
 
 	QVector2D mousePosition;

@@ -38,11 +38,13 @@ void MainWidget::setFragmentShader(const QString& shaderSource)
 {
 	QMutexLocker locker(&m);
 
-	if (program.isLinked())
+	if (_program && _program->isLinked())
 	{
-		program.release();
-		program.removeAllShaders();
+		_program->release();
+		_program->removeAllShaders();
 	}
+
+	_program = std::make_unique<QOpenGLShaderProgram>();
 
 	if (!_fragmentShader->compileSourceCode(shaderSource))
 	{
@@ -51,18 +53,18 @@ void MainWidget::setFragmentShader(const QString& shaderSource)
 		return;
 	}
 
-	if (!program.addShader(_fragmentShader.get()))
-		qDebug() << "Failed to add fragment shader:\n" << program.log();
+	if (!_program->addShader(_fragmentShader.get()))
+		qDebug() << "Failed to add fragment shader:\n" << _program->log();
 
 	// Compile vertex shader
-	if (!program.addShaderFromSourceCode(QOpenGLShader::Vertex, vshader))
-		qDebug() << "Failed to add vertex shader:\n" << program.log();
+	if (!_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vshader))
+		qDebug() << "Failed to add vertex shader:\n" << _program->log();
 
-	if (!program.link())
-		qDebug() << "Failed to link the program\n:" << program.log();
+	if (!_program->link())
+		qDebug() << "Failed to link the program\n:" << _program->log();
 
-	if (!program.bind())
-		qDebug() << "Failed to bind the program\n:" << program.log();
+	if (!_program->bind())
+		qDebug() << "Failed to bind the program\n:" << _program->log();
 }
 
 void MainWidget::mouseMoveEvent(QMouseEvent* e)
@@ -94,7 +96,7 @@ void MainWidget::paintGL()
 {
 	QMutexLocker locker(&m);
 
-	if (!program.isLinked())
+	if (!_program || !_program->isLinked())
 		return;
 
 	const float w = (float)width(), h = (float)height();
@@ -110,17 +112,17 @@ void MainWidget::paintGL()
 	QMatrix4x4 pmvMatrix;
 	pmvMatrix.ortho(rect());
 
-	program.enableAttributeArray("vertexPosition");
+	_program->enableAttributeArray("vertexPosition");
 	LogGlError;
 
-	program.setAttributeArray("vertexPosition", vertices, 3);
+	_program->setAttributeArray("vertexPosition", vertices, 3);
 	LogGlError;
-	program.setUniformValue("matrix", pmvMatrix);
+	_program->setUniformValue("matrix", pmvMatrix);
 	LogGlError;
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	LogGlError;
 
-	program.disableAttributeArray("vertexPosition");
+	_program->disableAttributeArray("vertexPosition");
 	LogGlError;
 }
