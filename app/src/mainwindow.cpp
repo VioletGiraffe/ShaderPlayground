@@ -7,9 +7,14 @@ static const char* fshader =
 	"precision highp float;\n"
 	"#endif\n"
 
+	"varying highp vec2 pixelPosition;\n"
+
 	"void main()\n"
 	"{\n"
-		"\tgl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);\n"
+		"if (pixelPosition.x > 100.0)\n"
+			"\tgl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);\n"
+		"else\n"
+			"\tgl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n"
 	"}\n";
 
 MainWindow::MainWindow(QWidget *parent) :

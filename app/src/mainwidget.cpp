@@ -28,9 +28,12 @@ static const char* vshader =
 	"attribute highp vec4 vertexPosition;\n"
 	"uniform highp mat4 matrix;\n"
 
+	"varying highp vec2 pixelPosition;"
+
 	"void main()\n"
 	"{\n"
 	"gl_Position = matrix * vertexPosition;\n"
+	"pixelPosition = vertexPosition.xy;\n"
 	"}\n";
 
 
@@ -98,6 +101,8 @@ void MainWidget::paintGL()
 
 	if (!_program || !_program->isLinked())
 		return;
+
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	const float w = (float)width(), h = (float)height();
 	const GLfloat vertices[2 * 3 * 3] = {
