@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	_shaderEditorWidget = new QTextEdit(ui->shaderWidgetHost);
 	_shaderEditorWidget->setLineWrapMode(QTextEdit::NoWrap);
+	_shaderEditorWidget->setFrameStyle(QFrame::NoFrame);
 	auto editorPalette = _shaderEditorWidget->palette();
 	editorPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);
 	editorPalette.setColor(QPalette::Inactive, QPalette::Base, Qt::transparent);
