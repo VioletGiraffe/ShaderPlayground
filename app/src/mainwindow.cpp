@@ -44,6 +44,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	_shaderEditorWidget->setLineWrapMode(QTextEdit::NoWrap);
 	_shaderEditorWidget->setTabStopWidth(4 * _shaderEditorWidget->fontMetrics().width(' '));
 	connect(_shaderEditorWidget, &QTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
+
+	ui->mainSplitter->setStretchFactor(0, 1);
+	ui->mainSplitter->setStretchFactor(1, 0);
+	ui->mainSplitter->setSizes({0, 100});
 }
 
 MainWindow::~MainWindow()
