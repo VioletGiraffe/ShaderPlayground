@@ -20,7 +20,7 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
-      <widget class="QWidget" name="shaderWidgetHost" native="true"/>
+      <widget class="QWidget" name="shaderWidgetsHost" native="true"/>
       <widget class="QPlainTextEdit" name="output">
        <property name="readOnly">
         <bool>true</bool>

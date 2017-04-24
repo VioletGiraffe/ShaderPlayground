@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "shaderrenderwidget.h"
+#include "overlaylayout.h"
 
 #include <QTextEdit>
 
@@ -24,16 +25,23 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	_renderWidget = new ShaderRenderWidget(ui->shaderWidgetHost);
+	auto overlayLayout = new OverlayLayout(ui->shaderWidgetsHost);
+	_renderWidget = new ShaderRenderWidget();
+	overlayLayout->addWidget(_renderWidget);
 
-	_shaderEditorWidget = new QTextEdit(ui->shaderWidgetHost);
-	_shaderEditorWidget->setLineWrapMode(QTextEdit::NoWrap);
+	_shaderEditorWidget = new QTextEdit();
+	overlayLayout->addWidget(_shaderEditorWidget);
+
+	ui->shaderWidgetsHost->setLayout(overlayLayout);
+
 	_shaderEditorWidget->setFrameStyle(QFrame::NoFrame);
 	auto editorPalette = _shaderEditorWidget->palette();
 	editorPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);
 	editorPalette.setColor(QPalette::Inactive, QPalette::Base, Qt::transparent);
 	_shaderEditorWidget->setPalette(editorPalette);
+
 	_shaderEditorWidget->setText(fshader);
+	_shaderEditorWidget->setLineWrapMode(QTextEdit::NoWrap);
 	_shaderEditorWidget->setTabStopWidth(4 * _shaderEditorWidget->fontMetrics().width(' '));
 	connect(_shaderEditorWidget, &QTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
 }
