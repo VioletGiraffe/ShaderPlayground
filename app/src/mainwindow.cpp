@@ -3,8 +3,7 @@
 
 #include "shaderrenderwidget.h"
 #include "overlaylayout.h"
-
-#include <QTextEdit>
+#include "codeeditor.h"
 
 static const char* fshader =
 	"#ifdef GL_ES\n"
@@ -29,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	_renderWidget = new ShaderRenderWidget();
 	overlayLayout->addWidget(_renderWidget);
 
-	_shaderEditorWidget = new QTextEdit();
+	_shaderEditorWidget = new CodeEditor();
 	overlayLayout->addWidget(_shaderEditorWidget);
 
 	ui->shaderWidgetsHost->setLayout(overlayLayout);
@@ -40,10 +39,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	editorPalette.setColor(QPalette::Inactive, QPalette::Base, Qt::transparent);
 	_shaderEditorWidget->setPalette(editorPalette);
 
-	_shaderEditorWidget->setText(fshader);
-	_shaderEditorWidget->setLineWrapMode(QTextEdit::NoWrap);
+	_shaderEditorWidget->setPlainText(fshader);
+	_shaderEditorWidget->setLineWrapMode(QPlainTextEdit::NoWrap);
 	_shaderEditorWidget->setTabStopWidth(4 * _shaderEditorWidget->fontMetrics().width(' '));
-	connect(_shaderEditorWidget, &QTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
+	connect(_shaderEditorWidget, &QPlainTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
 
 	ui->mainSplitter->setStretchFactor(0, 1);
 	ui->mainSplitter->setStretchFactor(1, 0);

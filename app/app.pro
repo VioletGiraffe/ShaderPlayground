@@ -44,13 +44,15 @@ win32*:!*msvc2012:*msvc* {
 HEADERS += \
     src/mainwindow.h \
     src/shaderrenderwidget.h \
-    src/overlaylayout.h
+    src/overlaylayout.h \
+    src/codeeditor.h
 
 SOURCES += \
 	src/main.cpp \
     src/mainwindow.cpp \
     src/shaderrenderwidget.cpp \
-    src/overlaylayout.cpp
+    src/overlaylayout.cpp \
+    src/codeeditor.cpp
 
 FORMS += \
     src/mainwindow.ui

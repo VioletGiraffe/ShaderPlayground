@@ -2,7 +2,7 @@
 
 #include <QMainWindow>
 
-class QTextEdit;
+class QPlainTextEdit;
 class ShaderRenderWidget;
 
 namespace Ui {
@@ -23,7 +23,7 @@ private:
 private:
 	Ui::MainWindow *ui;
 
-	QTextEdit* _shaderEditorWidget;
+	QPlainTextEdit* _shaderEditorWidget;
 	ShaderRenderWidget* _renderWidget;
 };
 
