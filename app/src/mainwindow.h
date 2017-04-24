@@ -2,6 +2,9 @@
 
 #include <QMainWindow>
 
+class QTextEdit;
+class ShaderRenderWidget;
+
 namespace Ui {
 class MainWindow;
 }
@@ -19,5 +22,8 @@ private:
 
 private:
 	Ui::MainWindow *ui;
+
+	QTextEdit* _shaderEditorWidget;
+	ShaderRenderWidget* _renderWidget;
 };
 

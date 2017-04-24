@@ -11,13 +11,13 @@
 
 #include <memory>
 
-class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class ShaderRenderWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
 public:
-	explicit MainWidget(QWidget *parent = 0);
-	~MainWidget();
+	explicit ShaderRenderWidget(QWidget *parent = 0);
+	~ShaderRenderWidget();
 
-	void setFragmentShader(const QString& shaderSource);
+	QString setFragmentShader(const QString& shaderSource);
 
 protected:
 	void mouseMoveEvent(QMouseEvent *e) override;

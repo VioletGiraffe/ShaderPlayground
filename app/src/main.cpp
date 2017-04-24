@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
-#include "mainwidget.h"
+#include "shaderrenderwidget.h"
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])

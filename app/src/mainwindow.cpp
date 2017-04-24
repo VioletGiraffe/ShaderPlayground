@@ -1,6 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "shaderrenderwidget.h"
+
+#include <QTextEdit>
+
 static const char* fshader =
 	"#ifdef GL_ES\n"
 	"precision highp int;\n"
@@ -23,9 +27,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	ui->fragmentShaderText->setText(fshader);
-	ui->fragmentShaderText->setTabStopWidth(3 * QFontMetrics(ui->fragmentShaderText->font()).width(' '));
-	connect(ui->fragmentShaderText, &QTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
+	_renderWidget = new ShaderRenderWidget(ui->shaderWidgetHost);
+	_shaderEditorWidget = new QTextEdit(ui->shaderWidgetHost);
+
+	_shaderEditorWidget->setLineWrapMode(QTextEdit::NoWrap);
+	auto editorPalette = _shaderEditorWidget->palette();
+	editorPalette.setColor(QPalette::Background, Qt::transparent);
+	_shaderEditorWidget->setPalette(editorPalette);
+
+	_shaderEditorWidget->setText(fshader);
+	_shaderEditorWidget->setTabStopWidth(3 * _shaderEditorWidget->fontMetrics().width(' '));
+	connect(_shaderEditorWidget, &QTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
 }
 
 MainWindow::~MainWindow()
@@ -41,5 +53,7 @@ void MainWindow::showEvent(QShowEvent* e)
 
 void MainWindow::updateFragmentShader()
 {
-	ui->glWidget->setFragmentShader(ui->fragmentShaderText->toPlainText());
+	const QString log = _renderWidget->setFragmentShader(_shaderEditorWidget->toPlainText());
+	if (!log.isEmpty())
+		ui->output->setPlainText(log);
 }

@@ -1,4 +1,4 @@
-#include "mainwidget.h"
+#include "shaderrenderwidget.h"
 
 #include <QDebug>
 #include <QMatrix4x4>
@@ -11,11 +11,11 @@
 		qDebug() << "GL error" << err << "at" << __FUNCTION__ << __LINE__;	\
 }
 
-MainWidget::MainWidget(QWidget *parent) : QOpenGLWidget(parent)
+ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) : QOpenGLWidget(parent)
 {
 }
 
-MainWidget::~MainWidget()
+ShaderRenderWidget::~ShaderRenderWidget()
 {
 }
 
@@ -37,7 +37,7 @@ static const char* vshader =
 	"}\n";
 
 
-void MainWidget::setFragmentShader(const QString& shaderSource)
+QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 {
 	QMutexLocker locker(&m);
 
@@ -52,11 +52,7 @@ void MainWidget::setFragmentShader(const QString& shaderSource)
 
 
 	if (!_fragmentShader->compileSourceCode(shaderSource))
-	{
-		qDebug() << "Error compiling fragment shader:";
-		qDebug() << _fragmentShader->log();
-		return;
-	}
+		return _fragmentShader->log();
 
 	if (!_program->addShader(_fragmentShader.get()))
 		qDebug() << "Failed to add fragment shader:\n" << _program->log();
@@ -70,14 +66,16 @@ void MainWidget::setFragmentShader(const QString& shaderSource)
 
 	if (!_program->bind())
 		qDebug() << "Failed to bind the program\n:" << _program->log();
+
+	return _program->log();
 }
 
-void MainWidget::mouseMoveEvent(QMouseEvent* e)
+void ShaderRenderWidget::mouseMoveEvent(QMouseEvent* e)
 {
 	mousePosition = QVector2D(e->localPos());
 }
 
-void MainWidget::initializeGL()
+void ShaderRenderWidget::initializeGL()
 {
 	initializeOpenGLFunctions();
 
@@ -88,14 +86,14 @@ void MainWidget::initializeGL()
 	timer.start(10);
 }
 
-void MainWidget::resizeGL(int w, int h)
+void ShaderRenderWidget::resizeGL(int w, int h)
 {
 	// TODO: manually calling glViewport() has no effect in QOpenGLWidget?
 //	const auto scale = devicePixelRatio();
 //	glViewport(0, 0, scale * w, scale * h);
 }
 
-void MainWidget::paintGL()
+void ShaderRenderWidget::paintGL()
 {
 	QMutexLocker locker(&m);
 
