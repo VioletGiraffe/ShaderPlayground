@@ -25,8 +25,7 @@ int CodeEditor::lineNumberAreaWidth()
 		++digits;
 	}
 
-	int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
-
+	const int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
 	return space;
 }
 
@@ -56,18 +55,18 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
 void CodeEditor::highlightCurrentLine()
 {
-	if (isReadOnly())
-		return;
+//	if (isReadOnly())
+//		return;
 
-	const QColor lineColor = QColor(20, 20, 20, 130);
+//	const QColor lineColor = QColor(255, 255, 255, 3);
 
-	QTextEdit::ExtraSelection selection;
-	selection.format.setBackground(lineColor);
-	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-	selection.cursor = textCursor();
-	selection.cursor.clearSelection();
+//	QTextEdit::ExtraSelection selection;
+//	selection.format.setBackground(lineColor);
+//	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+//	selection.cursor = textCursor();
+//	selection.cursor.clearSelection();
 
-	setExtraSelections(QList<QTextEdit::ExtraSelection>{selection});
+//	setExtraSelections(QList<QTextEdit::ExtraSelection>{selection});
 }
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)

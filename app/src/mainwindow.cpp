@@ -41,12 +41,16 @@ MainWindow::MainWindow(QWidget *parent) :
 	editorFont.setPointSize(10);
 
 	_shaderEditorWidget->setFont(editorFont);
-	_shaderEditorWidget->setStyleSheet("color: white;");
+	_shaderEditorWidget->setStyleSheet("color: white; selection-background-color: rgba(80, 80, 80, 130);");
 	_shaderEditorWidget->setFrameStyle(QFrame::NoFrame);
 	auto editorPalette = _shaderEditorWidget->palette();
 	editorPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);
 	editorPalette.setColor(QPalette::Inactive, QPalette::Base, Qt::transparent);
 	_shaderEditorWidget->setPalette(editorPalette);
+
+	QTextCharFormat fmt;
+	fmt.setBackground(QBrush(QColor(20, 20, 20, 130)));
+	_shaderEditorWidget->mergeCurrentCharFormat(fmt);
 
 	_shaderEditorWidget->setPlainText(fshader);
 	_shaderEditorWidget->setLineWrapMode(QPlainTextEdit::NoWrap);
