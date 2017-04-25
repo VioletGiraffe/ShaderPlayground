@@ -10,7 +10,7 @@ class QTextDocument;
 class ShaderSyntaxHighlighter : public QSyntaxHighlighter
 {
 public:
-	ShaderSyntaxHighlighter(QTextDocument *parent = 0);
+	ShaderSyntaxHighlighter(QTextDocument *parent);
 
 protected:
 	void highlightBlock(const QString &text) override;

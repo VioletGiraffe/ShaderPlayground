@@ -35,6 +35,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->shaderWidgetsHost->setLayout(overlayLayout);
 
+	QFont editorFont;
+	editorFont.setFamily("Consolas");
+	editorFont.setFixedPitch(true);
+	editorFont.setPointSize(10);
+
+	_shaderEditorWidget->setFont(editorFont);
 	_shaderEditorWidget->setFrameStyle(QFrame::NoFrame);
 	auto editorPalette = _shaderEditorWidget->palette();
 	editorPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);
