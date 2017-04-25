@@ -1,23 +1,21 @@
 #pragma once
 
 #include <QSyntaxHighlighter>
-#include <QTextCharFormat>
 
 #include <vector>
 
-class QTextDocument;
-
-class ShaderSyntaxHighlighter : public QSyntaxHighlighter
+class ShaderSyntaxHighlighter: public QSyntaxHighlighter
 {
 public:
-	ShaderSyntaxHighlighter(QTextDocument *parent);
+	ShaderSyntaxHighlighter(QTextDocument *parent = 0);
 
 protected:
 	void highlightBlock(const QString &text) override;
 
 private:
-	struct HighlightingRule
-	{
+	void addPatternFromList(QStringList &list, QTextCharFormat &format);
+
+	struct HighlightingRule {
 		QRegExp pattern;
 		QTextCharFormat format;
 	};
@@ -27,10 +25,10 @@ private:
 	QRegExp _commentStartExpression;
 	QRegExp _commentEndExpression;
 
-	QTextCharFormat _keywordFormat;
-	QTextCharFormat _classFormat;
-	QTextCharFormat _singleLineCommentFormat;
-	QTextCharFormat _multiLineCommentFormat;
-	QTextCharFormat _quotationFormat;
-	QTextCharFormat _functionFormat;
+	QTextCharFormat _statementFormat;
+	QTextCharFormat _commentFormat;
+	QTextCharFormat _preprocessorFormat;
+	QTextCharFormat _numberFormat;
+	QTextCharFormat _typesFormat;
+	QTextCharFormat _swizzleFormat;
 };

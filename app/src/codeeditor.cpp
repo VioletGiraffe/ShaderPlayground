@@ -59,7 +59,7 @@ void CodeEditor::highlightCurrentLine()
 	if (isReadOnly())
 		return;
 
-	const QColor lineColor = QColor(64, 64, 64, 64);
+	const QColor lineColor = QColor(20, 20, 20, 130);
 
 	QTextEdit::ExtraSelection selection;
 	selection.format.setBackground(lineColor);

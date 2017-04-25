@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	editorFont.setPointSize(10);
 
 	_shaderEditorWidget->setFont(editorFont);
+	_shaderEditorWidget->setStyleSheet("color: white;");
 	_shaderEditorWidget->setFrameStyle(QFrame::NoFrame);
 	auto editorPalette = _shaderEditorWidget->palette();
 	editorPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);
