@@ -4,6 +4,7 @@
 #include "shaderrenderwidget.h"
 #include "overlaylayout.h"
 #include "codeeditor.h"
+#include "shadersyntaxhighlighter.h"
 
 static const char* fshader =
 	"#ifdef GL_ES\n"
@@ -30,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	_shaderEditorWidget = new CodeEditor();
 	overlayLayout->addWidget(_shaderEditorWidget);
+	new ShaderSyntaxHighlighter(_shaderEditorWidget->document());
 
 	ui->shaderWidgetsHost->setLayout(overlayLayout);
 

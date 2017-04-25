@@ -45,14 +45,16 @@ HEADERS += \
     src/mainwindow.h \
     src/shaderrenderwidget.h \
     src/overlaylayout.h \
-    src/codeeditor.h
+    src/codeeditor.h \
+    src/shadersyntaxhighlighter.h
 
 SOURCES += \
 	src/main.cpp \
     src/mainwindow.cpp \
     src/shaderrenderwidget.cpp \
     src/overlaylayout.cpp \
-    src/codeeditor.cpp
+    src/codeeditor.cpp \
+    src/shadersyntaxhighlighter.cpp
 
 FORMS += \
     src/mainwindow.ui
