@@ -19,24 +19,6 @@ ShaderRenderWidget::~ShaderRenderWidget()
 {
 }
 
-static const char* vshader =
-	"#ifdef GL_ES\n"
-	"precision highp int;\n"
-	"precision highp float;\n"
-	"#endif\n"
-
-	"attribute highp vec4 vertexPosition;\n"
-	"uniform highp mat4 matrix;\n"
-
-	"varying highp vec2 pixelPosition;"
-
-	"void main()\n"
-	"{\n"
-	"gl_Position = matrix * vertexPosition;\n"
-	"pixelPosition = vertexPosition.xy;\n"
-	"}\n";
-
-
 QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 {
 	QMutexLocker locker(&m);
@@ -58,7 +40,7 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 		qDebug() << "Failed to add fragment shader:\n" << _program->log();
 
 	// Compile vertex shader
-	if (!_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vshader))
+	if (!_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/resources/default_vertex_shader.vsh"))
 		qDebug() << "Failed to add vertex shader:\n" << _program->log();
 
 	if (!_program->link())

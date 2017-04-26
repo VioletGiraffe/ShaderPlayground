@@ -5,19 +5,16 @@
 #include "widgets/layouts/coverlaylayout.h"
 #include "codeeditor.h"
 #include "shadersyntaxhighlighter.h"
+#include "assert/advanced_assert.h"
 
-static const char* fshader =
-	"#ifdef GL_ES\n"
-	"precision highp int;\n"
-	"precision highp float;\n"
-	"#endif\n\n"
+inline QString textFromResource(const char* resourcePath)
+{
+	QFile resourceFile(resourcePath);
+	assert(resourceFile.exists());
+	assert_r(resourceFile.open(QFile::ReadOnly));
 
-	"varying highp vec2 pixelPosition;\n\n"
-
-	"void main()\n"
-	"{\n"
-		"\tgl_FragColor = pixelPosition.x > 100.0 ? vec4(1.0, 0.95, 0.0, 1.0) : vec4(0.0, 0.85, 1.0, 1.0);\n"
-	"}\n";
+	return resourceFile.readAll();
+}
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -52,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	fmt.setBackground(QBrush(QColor(20, 20, 20, 130)));
 	_shaderEditorWidget->mergeCurrentCharFormat(fmt);
 
-	_shaderEditorWidget->setPlainText(fshader);
+	_shaderEditorWidget->setPlainText(textFromResource(":/resources/default_fragment_shader.fsh"));
 	_shaderEditorWidget->setLineWrapMode(QPlainTextEdit::NoWrap);
 	_shaderEditorWidget->setTabStopWidth(4 * _shaderEditorWidget->fontMetrics().width(' '));
 	connect(_shaderEditorWidget, &QPlainTextEdit::textChanged, this, &MainWindow::updateFragmentShader);

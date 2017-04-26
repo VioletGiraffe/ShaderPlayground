@@ -47,7 +47,6 @@ INCLUDEPATH += \
 
 LIBS += -L$${DESTDIR} -lcpputils -lqtutils
 
-
 HEADERS += \
 	src/mainwindow.h \
 	src/shaderrenderwidget.h \
@@ -63,3 +62,6 @@ SOURCES += \
 
 FORMS += \
 	src/mainwindow.ui
+
+RESOURCES += \
+    shaders.qrc
