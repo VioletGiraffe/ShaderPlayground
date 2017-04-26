@@ -1,13 +1,13 @@
 #pragma once
 
+#include "system/ctimeelapsed.h"
+
+#include <QMutex>
 #include <QOpenGLFunctions>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
 #include <QTimer>
-#include <QVector2D>
-
-#include <QMutex>
 
 #include <memory>
 
@@ -20,18 +20,17 @@ public:
 	QString setFragmentShader(const QString& shaderSource);
 
 protected:
-	void mouseMoveEvent(QMouseEvent *e) override;
+	void showEvent(QShowEvent *event) override;
 
 	void initializeGL() override;
 	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
 private:
-	QMutex m;
+	QMutex _shaderProgramMutex;
 
 	QTimer timer;
+	CTimeElapsed _timeSinceLastFrame, _totalRunTime;
 	std::unique_ptr<QOpenGLShaderProgram> _program;
 	std::unique_ptr<QOpenGLShader> _fragmentShader;
-
-	QVector2D mousePosition;
 };

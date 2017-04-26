@@ -21,7 +21,7 @@ ShaderRenderWidget::~ShaderRenderWidget()
 
 QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 {
-	QMutexLocker locker(&m);
+	QMutexLocker locker(&_shaderProgramMutex);
 
 	if (_program)
 	{
@@ -52,9 +52,11 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 	return _program->log();
 }
 
-void ShaderRenderWidget::mouseMoveEvent(QMouseEvent* e)
+void ShaderRenderWidget::showEvent(QShowEvent *event)
 {
-	mousePosition = QVector2D(e->localPos());
+	QOpenGLWidget::showEvent(event);
+	_totalRunTime.start();
+	_timeSinceLastFrame.start();
 }
 
 void ShaderRenderWidget::initializeGL()
@@ -77,7 +79,7 @@ void ShaderRenderWidget::resizeGL(int w, int h)
 
 void ShaderRenderWidget::paintGL()
 {
-	QMutexLocker locker(&m);
+	QMutexLocker locker(&_shaderProgramMutex);
 
 	if (!_program || !_program->isLinked())
 		return;
@@ -103,6 +105,16 @@ void ShaderRenderWidget::paintGL()
 	_program->setAttributeArray("vertexPosition", vertices, 3);
 	LogGlError;
 	_program->setUniformValue("matrix", pmvMatrix);
+	LogGlError;
+	_program->setUniformValue("screenSize", size());
+	LogGlError;
+	_program->setUniformValue("mousePosition", mapFromGlobal(QCursor::pos()));
+	LogGlError;
+
+	_timeSinceLastFrame.start();
+	_program->setUniformValue("frameTime", (uint32_t)_timeSinceLastFrame.elapsed());
+	LogGlError;
+	_program->setUniformValue("totalTime", (uint32_t)_totalRunTime.elapsed());
 	LogGlError;
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);

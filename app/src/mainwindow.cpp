@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	editorFont.setPointSize(10);
 
 	_shaderEditorWidget->setFont(editorFont);
-	_shaderEditorWidget->setStyleSheet("color: white; selection-background-color: rgba(80, 80, 80, 130);");
+	_shaderEditorWidget->setStyleSheet("color: white; selection-background-color: rgba(160, 160, 160, 130); selection-color: rgb(60, 60, 60);");
 	_shaderEditorWidget->setFrameStyle(QFrame::NoFrame);
 	auto editorPalette = _shaderEditorWidget->palette();
 	editorPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);
