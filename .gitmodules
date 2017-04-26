@@ -1,0 +1,9 @@
+[submodule "qtutils"]
+	path = qtutils
+	url = https://github.com/VioletGiraffe/qtutils
+[submodule "cpputils"]
+	path = cpputils
+	url = https://github.com/VioletGiraffe/cpputils
+[submodule "cpp-template-utils"]
+	path = cpp-template-utils
+	url = https://github.com/VioletGiraffe/cpp-template-utils

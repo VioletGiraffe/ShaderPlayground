@@ -1,11 +1,20 @@
-#include <QApplication>
-#include <QSurfaceFormat>
-
 #include "shaderrenderwidget.h"
 #include "mainwindow.h"
+#include "assert/advanced_assert.h"
+
+DISABLE_COMPILER_WARNINGS
+#include <QApplication>
+#include <QSurfaceFormat>
+RESTORE_COMPILER_WARNINGS
 
 int main(int argc, char *argv[])
 {
+	qSetMessagePattern("%{function} (%{file}:%{line}): %{message}");
+
+	AdvancedAssert::setLoggingFunc([](const char* message) {
+		qDebug() << message;
+	});
+
 	QApplication app(argc, argv);
 
 //	QSurfaceFormat format;

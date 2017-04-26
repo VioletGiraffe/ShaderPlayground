@@ -40,21 +40,26 @@ win32*:!*msvc2012:*msvc* {
 	QMAKE_CXXFLAGS += /FS
 }
 
+INCLUDEPATH += \
+	../cpputils/ \
+	../cpp-template-utils/ \
+	../qtutils/
+
+LIBS += -L$${DESTDIR} -lcpputils -lqtutils
+
 
 HEADERS += \
-    src/mainwindow.h \
-    src/shaderrenderwidget.h \
-    src/overlaylayout.h \
-    src/codeeditor.h \
-    src/shadersyntaxhighlighter.h
+	src/mainwindow.h \
+	src/shaderrenderwidget.h \
+	src/codeeditor.h \
+	src/shadersyntaxhighlighter.h
 
 SOURCES += \
 	src/main.cpp \
-    src/mainwindow.cpp \
-    src/shaderrenderwidget.cpp \
-    src/overlaylayout.cpp \
-    src/codeeditor.cpp \
-    src/shadersyntaxhighlighter.cpp
+	src/mainwindow.cpp \
+	src/shaderrenderwidget.cpp \
+	src/codeeditor.cpp \
+	src/shadersyntaxhighlighter.cpp
 
 FORMS += \
-    src/mainwindow.ui
+	src/mainwindow.ui

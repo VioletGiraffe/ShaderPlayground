@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "shaderrenderwidget.h"
-#include "overlaylayout.h"
+#include "widgets/layouts/coverlaylayout.h"
 #include "codeeditor.h"
 #include "shadersyntaxhighlighter.h"
 
@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	auto overlayLayout = new OverlayLayout(ui->shaderWidgetsHost);
+	auto overlayLayout = new COverlayLayout(ui->shaderWidgetsHost);
 	_renderWidget = new ShaderRenderWidget();
 	overlayLayout->addWidget(_renderWidget);
 
