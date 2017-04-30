@@ -23,25 +23,14 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 {
 	QMutexLocker locker(&_shaderProgramMutex);
 
-	if (_program && _program->isLinked())
-	{
-		_program->release();
-		_program->removeAllShaders();
-	}
-
-	_program = std::make_unique<QOpenGLShaderProgram>();
-	_fragmentShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Fragment);
-
+	if (_program->isLinked())
+		_program->removeShader(_fragmentShader.get());
 
 	if (!_fragmentShader->compileSourceCode(shaderSource))
 		return _fragmentShader->log();
 
 	if (!_program->addShader(_fragmentShader.get()))
 		qDebug() << "Failed to add fragment shader:\n" << _program->log();
-
-	// Compile vertex shader
-	if (!_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/resources/default_vertex_shader.vsh"))
-		qDebug() << "Failed to add vertex shader:\n" << _program->log();
 
 	if (!_program->link())
 		qDebug() << "Failed to link the program\n:" << _program->log();
@@ -60,8 +49,11 @@ void ShaderRenderWidget::initializeGL()
 {
 	initializeOpenGLFunctions();
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	LogGlError;
+	_program = std::make_unique<QOpenGLShaderProgram>();
+	_fragmentShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Fragment);
+
+	if (!_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/resources/default_vertex_shader.vsh"))
+		qDebug() << "Failed to add vertex shader:\n" << _program->log();
 
 	connect(&timer, &QTimer::timeout, this, [this](){update();});
 	timer.start(10);
@@ -83,8 +75,6 @@ void ShaderRenderWidget::paintGL()
 
 	if (!_program->bind())
 		qDebug() << "Failed to bind the program\n:" << _program->log();
-
-	glClear(GL_COLOR_BUFFER_BIT);
 
 	const float w = (float)width(), h = (float)height();
 	const GLfloat vertices[2 * 3 * 3] = {
