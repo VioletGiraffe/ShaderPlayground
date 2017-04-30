@@ -23,7 +23,7 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 {
 	QMutexLocker locker(&_shaderProgramMutex);
 
-	if (_program)
+	if (_program && _program->isLinked())
 	{
 		_program->release();
 		_program->removeAllShaders();
@@ -45,9 +45,6 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 
 	if (!_program->link())
 		qDebug() << "Failed to link the program\n:" << _program->log();
-
-	if (!_program->bind())
-		qDebug() << "Failed to bind the program\n:" << _program->log();
 
 	return _program->log();
 }
@@ -83,6 +80,9 @@ void ShaderRenderWidget::paintGL()
 
 	if (!_program || !_program->isLinked())
 		return;
+
+	if (!_program->bind())
+		qDebug() << "Failed to bind the program\n:" << _program->log();
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
