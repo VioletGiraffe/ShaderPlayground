@@ -71,7 +71,10 @@ void ShaderRenderWidget::paintGL()
 	QMutexLocker locker(&_shaderProgramMutex);
 
 	if (!_program || !_program->isLinked())
+	{
+		glClear(GL_COLOR_BUFFER_BIT);
 		return;
+	}
 
 	if (!_program->bind())
 		qDebug() << "Failed to bind the program\n:" << _program->log();
@@ -102,9 +105,9 @@ void ShaderRenderWidget::paintGL()
 	LogGlError;
 
 	_timeSinceLastFrame.start();
-	_program->setUniformValue("frameTime", (uint32_t)_timeSinceLastFrame.elapsed());
+	_program->setUniformValue("frameTime", (float)_timeSinceLastFrame.elapsed());
 	LogGlError;
-	_program->setUniformValue("totalTime", (uint32_t)_totalRunTime.elapsed());
+	_program->setUniformValue("totalTime", (float)_totalRunTime.elapsed());
 	LogGlError;
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
