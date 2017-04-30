@@ -18,6 +18,8 @@ public:
 	void lineNumberAreaPaintEvent(QPaintEvent *event);
 	int lineNumberAreaWidth();
 
+	void setTextBackgroundColor(const QColor& color);
+
 protected:
 	void resizeEvent(QResizeEvent *event) override;
 
@@ -27,7 +29,7 @@ private slots:
 	void updateLineNumberArea(const QRect &, int);
 
 private:
-	QWidget* lineNumberArea = nullptr;
+	QWidget* _lineNumberArea = nullptr;
 };
 
 

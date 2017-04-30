@@ -45,9 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	editorPalette.setColor(QPalette::Inactive, QPalette::Base, Qt::transparent);
 	_shaderEditorWidget->setPalette(editorPalette);
 
-	QTextCharFormat fmt;
-	fmt.setBackground(QBrush(QColor(20, 20, 20, 130)));
-	_shaderEditorWidget->mergeCurrentCharFormat(fmt);
+	_shaderEditorWidget->setTextBackgroundColor(QColor(20, 20, 20, 130));
 
 	_shaderEditorWidget->setPlainText(textFromResource(":/resources/default_fragment_shader.fsh"));
 	_shaderEditorWidget->setLineWrapMode(QPlainTextEdit::NoWrap);
@@ -73,6 +71,5 @@ void MainWindow::showEvent(QShowEvent* e)
 void MainWindow::updateFragmentShader()
 {
 	const QString log = _renderWidget->setFragmentShader(_shaderEditorWidget->toPlainText());
-	if (!log.isEmpty())
-		ui->output->setPlainText(log);
+	ui->output->setPlainText(log);
 }
