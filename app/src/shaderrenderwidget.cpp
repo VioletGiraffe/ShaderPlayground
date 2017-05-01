@@ -1,8 +1,10 @@
 #include "shaderrenderwidget.h"
 
+DISABLE_COMPILER_WARNINGS
 #include <QDebug>
 #include <QMatrix4x4>
 #include <QMouseEvent>
+RESTORE_COMPILER_WARNINGS
 
 #define LogGlError \
 {\
@@ -38,6 +40,11 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 	return _program->log();
 }
 
+float ShaderRenderWidget::frameRenderingPeriod() const
+{
+	return _frameRenderingPeriod;
+}
+
 void ShaderRenderWidget::showEvent(QShowEvent *event)
 {
 	QOpenGLWidget::showEvent(event);
@@ -61,6 +68,7 @@ void ShaderRenderWidget::initializeGL()
 
 void ShaderRenderWidget::resizeGL(int w, int h)
 {
+	QOpenGLWidget::resizeGL(w, h);
 	// TODO: manually calling glViewport() has no effect in QOpenGLWidget?
 //	const auto scale = devicePixelRatio();
 //	glViewport(0, 0, scale * w, scale * h);
@@ -71,6 +79,9 @@ void ShaderRenderWidget::paintGL()
 #ifndef _WIN32
 	QMutexLocker locker(&_shaderProgramMutex);
 #endif
+
+	_frameRenderingPeriod = _timeSinceLastFrame.elapsed<std::chrono::microseconds>() / 1000.0f;
+	_timeSinceLastFrame.start();
 
 	if (!_program || !_program->isLinked())
 	{
@@ -106,8 +117,7 @@ void ShaderRenderWidget::paintGL()
 	_program->setUniformValue("mousePosition", mapFromGlobal(QCursor::pos()));
 	LogGlError;
 
-	_timeSinceLastFrame.start();
-	_program->setUniformValue("frameTime", (float)_timeSinceLastFrame.elapsed());
+	_program->setUniformValue("frameTime", _frameRenderingPeriod);
 	LogGlError;
 	_program->setUniformValue("totalTime", (float)_totalRunTime.elapsed());
 	LogGlError;

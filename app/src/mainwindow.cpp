@@ -1,11 +1,16 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
 #include "shaderrenderwidget.h"
 #include "widgets/layouts/coverlaylayout.h"
 #include "codeeditor.h"
 #include "shadersyntaxhighlighter.h"
 #include "assert/advanced_assert.h"
+
+DISABLE_COMPILER_WARNINGS
+#include "ui_mainwindow.h"
+
+#include <QStringBuilder>
+RESTORE_COMPILER_WARNINGS
 
 inline QString textFromResource(const char* resourcePath)
 {
@@ -55,6 +60,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->mainSplitter->setStretchFactor(0, 1);
 	ui->mainSplitter->setStretchFactor(1, 0);
 	ui->mainSplitter->setSizes({0, 100});
+
+	connect(&_fpsUpdaterTimer, &QTimer::timeout, this, &MainWindow::updateWindowTitle);
+	_fpsUpdaterTimer.start(100);
 }
 
 MainWindow::~MainWindow()
@@ -72,4 +80,9 @@ void MainWindow::updateFragmentShader()
 {
 	const QString log = _renderWidget->setFragmentShader(_shaderEditorWidget->toPlainText());
 	ui->output->setPlainText(log);
+}
+
+void MainWindow::updateWindowTitle()
+{
+	setWindowTitle("Shader Playground - " % QString::number((int)(1000.0f / _renderWidget->frameRenderingPeriod())) % " fps");
 }

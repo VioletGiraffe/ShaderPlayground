@@ -1,6 +1,8 @@
 #include "shadersyntaxhighlighter.h"
 
+DISABLE_COMPILER_WARNINGS
 #include <QDebug>
+RESTORE_COMPILER_WARNINGS
 
 // Adapted from https://github.com/GLSL-Debugger/GLSL-Debugger/blob/master/glsldb/glslSyntaxHighlighter.cpp
 

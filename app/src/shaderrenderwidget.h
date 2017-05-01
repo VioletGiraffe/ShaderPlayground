@@ -1,13 +1,16 @@
 #pragma once
 
 #include "system/ctimeelapsed.h"
+#include "compiler/compiler_warnings_control.h"
 
+DISABLE_COMPILER_WARNINGS
 #include <QMutex>
 #include <QOpenGLFunctions>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
 #include <QTimer>
+RESTORE_COMPILER_WARNINGS
 
 #include <memory>
 
@@ -18,6 +21,8 @@ public:
 	~ShaderRenderWidget();
 
 	QString setFragmentShader(const QString& shaderSource);
+
+	float frameRenderingPeriod() const;
 
 protected:
 	void showEvent(QShowEvent *event) override;
@@ -33,4 +38,6 @@ private:
 	CTimeElapsed _timeSinceLastFrame, _totalRunTime;
 	std::unique_ptr<QOpenGLShaderProgram> _program;
 	std::unique_ptr<QOpenGLShader> _fragmentShader;
+
+	float _frameRenderingPeriod = 0.0f;
 };

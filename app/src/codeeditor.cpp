@@ -1,7 +1,9 @@
 #include "codeeditor.h"
 
+DISABLE_COMPILER_WARNINGS
 #include <QPainter>
 #include <QTextBlock>
+RESTORE_COMPILER_WARNINGS
 
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
