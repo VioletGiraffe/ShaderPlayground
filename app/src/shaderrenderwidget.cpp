@@ -68,7 +68,9 @@ void ShaderRenderWidget::resizeGL(int w, int h)
 
 void ShaderRenderWidget::paintGL()
 {
+#ifndef _WIN32
 	QMutexLocker locker(&_shaderProgramMutex);
+#endif
 
 	if (!_program || !_program->isLinked())
 		return;
