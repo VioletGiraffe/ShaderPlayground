@@ -7,8 +7,8 @@ varying highp vec2 pixelPosition;
 uniform mediump vec2 screenSize;
 uniform mediump vec2 mousePosition;
 
-uniform int frameTime;
-uniform int totalTime;
+uniform highp float frameTime;
+uniform mediump float totalTime;
 
 void main()
 {
