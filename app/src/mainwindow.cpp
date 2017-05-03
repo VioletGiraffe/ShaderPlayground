@@ -9,6 +9,7 @@
 DISABLE_COMPILER_WARNINGS
 #include "ui_mainwindow.h"
 
+#include <QActionGroup>
 #include <QStringBuilder>
 RESTORE_COMPILER_WARNINGS
 
@@ -60,6 +61,19 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->mainSplitter->setStretchFactor(0, 1);
 	ui->mainSplitter->setStretchFactor(1, 0);
 	ui->mainSplitter->setSizes({0, 100});
+
+	connect(ui->actionToggle_fullscreen_mode, &QAction::triggered, this, [this](bool checked) {
+		if (checked)
+			showFullScreen();
+		else
+			showNormal();
+	});
+
+	auto shaderFrameworkModeMenuGroup = new QActionGroup(this);
+	shaderFrameworkModeMenuGroup->addAction(ui->actionBarebone_GLSL);
+	shaderFrameworkModeMenuGroup->addAction(ui->actionShadertoy_compatibility);
+
+	connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
 
 	connect(&_fpsUpdaterTimer, &QTimer::timeout, this, &MainWindow::updateWindowTitle);
 	_fpsUpdaterTimer.start(100);
