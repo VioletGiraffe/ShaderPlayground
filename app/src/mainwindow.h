@@ -1,6 +1,7 @@
 #pragma once
 
 #include "compiler/compiler_warnings_control.h"
+#include "shaderframework.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QMainWindow>
@@ -23,6 +24,7 @@ public:
 	void showEvent(QShowEvent* e) override;
 
 private:
+	void setShaderFramework(ShaderFramework::Framework framework);
 	void updateFragmentShader();
 	void updateWindowTitle();
 
@@ -31,6 +33,8 @@ private:
 
 	CodeEditor* _shaderEditorWidget;
 	ShaderRenderWidget* _renderWidget;
+
+	ShaderFramework _shaderFramework;
 
 	QTimer _fpsUpdaterTimer;
 };

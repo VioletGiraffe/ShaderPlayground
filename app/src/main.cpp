@@ -16,6 +16,8 @@ int main(int argc, char *argv[])
 	});
 
 	QApplication app(argc, argv);
+	app.setOrganizationName("GitHubSoft");
+	app.setApplicationName("Shader Playground");
 
 //	QSurfaceFormat format;
 //	// Request OpenGL 3.3 compatibility or OpenGL ES 3.0.

@@ -1,10 +1,12 @@
 #include "mainwindow.h"
 
 #include "shaderrenderwidget.h"
-#include "widgets/layouts/coverlaylayout.h"
 #include "codeeditor.h"
 #include "shadersyntaxhighlighter.h"
+
+#include "widgets/layouts/coverlaylayout.h"
 #include "assert/advanced_assert.h"
+#include "settings/csettings.h"
 
 DISABLE_COMPILER_WARNINGS
 #include "ui_mainwindow.h"
@@ -12,6 +14,11 @@ DISABLE_COMPILER_WARNINGS
 #include <QActionGroup>
 #include <QStringBuilder>
 RESTORE_COMPILER_WARNINGS
+
+// Keys for storing option in the settings
+#define SETTINGS_KEY_UI_SHADER_FRAMEWORK QStringLiteral("Ui/ShaderFamework")
+#define SETTINGS_KEY_UI_WINDOWGEOMETRY QStringLiteral("Ui/WindowGeometry")
+#define SETTINGS_KEY_UI_WINDOWSTATE QStringLiteral("Ui/WindowState")
 
 inline QString textFromResource(const char* resourcePath)
 {
@@ -53,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	_shaderEditorWidget->setTextBackgroundColor(QColor(20, 20, 20, 130));
 
-	_shaderEditorWidget->setPlainText(textFromResource(":/resources/default_fragment_shader.fsh"));
+	_shaderEditorWidget->setPlainText(textFromResource(":/resources/default_fragment_shader_shadertoy.fsh"));
 	_shaderEditorWidget->setLineWrapMode(QPlainTextEdit::NoWrap);
 	_shaderEditorWidget->setTabStopWidth(4 * _shaderEditorWidget->fontMetrics().width(' '));
 	connect(_shaderEditorWidget, &QPlainTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
@@ -73,6 +80,21 @@ MainWindow::MainWindow(QWidget *parent) :
 	shaderFrameworkModeMenuGroup->addAction(ui->actionBarebone_GLSL);
 	shaderFrameworkModeMenuGroup->addAction(ui->actionShadertoy_compatibility);
 
+	const auto currentFramework = (ShaderFramework::Framework)CSettings().value(SETTINGS_KEY_UI_SHADER_FRAMEWORK, ShaderFramework::ShaderToy).toInt();
+	_shaderFramework.setFrameworkMode(currentFramework);
+	if (currentFramework == ShaderFramework::GLSL)
+		ui->actionBarebone_GLSL->setChecked(true);
+	else
+		ui->actionShadertoy_compatibility->setChecked(true);
+
+	connect(ui->actionBarebone_GLSL, &QAction::triggered, this, [this]() {
+		setShaderFramework(ShaderFramework::GLSL);
+	});
+
+	connect(ui->actionShadertoy_compatibility, &QAction::triggered, this, [this]() {
+		setShaderFramework(ShaderFramework::ShaderToy);
+	});
+
 	connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
 
 	connect(&_fpsUpdaterTimer, &QTimer::timeout, this, &MainWindow::updateWindowTitle);
@@ -90,9 +112,16 @@ void MainWindow::showEvent(QShowEvent* e)
 	QMainWindow::showEvent(e);
 }
 
+void MainWindow::setShaderFramework(ShaderFramework::Framework framework)
+{
+	CSettings().setValue(SETTINGS_KEY_UI_SHADER_FRAMEWORK, framework);
+	_shaderFramework.setFrameworkMode(framework);
+	updateFragmentShader();
+}
+
 void MainWindow::updateFragmentShader()
 {
-	const QString log = _renderWidget->setFragmentShader(_shaderEditorWidget->toPlainText());
+	const QString log = _renderWidget->setFragmentShader(_shaderFramework.processedShaderSource(_shaderEditorWidget->toPlainText()));
 	ui->output->setPlainText(log);
 }
 

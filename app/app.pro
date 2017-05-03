@@ -51,17 +51,21 @@ HEADERS += \
 	src/mainwindow.h \
 	src/shaderrenderwidget.h \
 	src/codeeditor.h \
-	src/shadersyntaxhighlighter.h
+	src/shadersyntaxhighlighter.h \
+    src/shaderframework.h
 
 SOURCES += \
 	src/main.cpp \
 	src/mainwindow.cpp \
 	src/shaderrenderwidget.cpp \
 	src/codeeditor.cpp \
-	src/shadersyntaxhighlighter.cpp
+	src/shadersyntaxhighlighter.cpp \
+    src/shaderframework.cpp
 
 FORMS += \
 	src/mainwindow.ui
 
 RESOURCES += \
     shaders.qrc
+
+DISTFILES +=
