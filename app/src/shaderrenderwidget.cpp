@@ -1,9 +1,11 @@
 #include "shaderrenderwidget.h"
 
 DISABLE_COMPILER_WARNINGS
+#include <QApplication>
 #include <QDebug>
 #include <QMatrix4x4>
 #include <QMouseEvent>
+#include <QVector3D>
 RESTORE_COMPILER_WARNINGS
 
 #define LogGlError \
@@ -114,7 +116,10 @@ void ShaderRenderWidget::paintGL()
 	LogGlError;
 	_program->setUniformValue("screenSize", size());
 	LogGlError;
-	_program->setUniformValue("mousePosition", mapFromGlobal(QCursor::pos()));
+	auto mouseStatus = QVector3D(mapFromGlobal(QCursor::pos()));
+	if (QApplication::mouseButtons() & Qt::LeftButton)
+		mouseStatus.setZ(1.0f);
+	_program->setUniformValue("mousePosition", mouseStatus);
 	LogGlError;
 
 	_program->setUniformValue("frameTime", _frameRenderingPeriod);

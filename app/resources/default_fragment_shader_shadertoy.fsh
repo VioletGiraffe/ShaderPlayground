@@ -1,121 +1,278 @@
-// Complex Number math by julesb
-// https://github.com/julesb/glsl-util
+// On/Off Spikes, fragment shader by movAX13h, oct 2014
 
-#define PI 3.14159265
+#define HARD_SHADOW
+#define GLOW
+#define EDGES
+#define NUM_TENTACLES 6
+#define BUMPS
+#define NUM_BUMPS 8
+#define BACKGROUND
+#define SUN_POS vec3(15.0, 15.0, -15.0)
+//#define SUN_SPHERE
 
-#define cx_mul(a, b) vec2(a.x*b.x-a.y*b.y, a.x*b.y+a.y*b.x)
-#define cx_div(a, b) vec2(((a.x*b.x+a.y*b.y)/(b.x*b.x+b.y*b.y)),((a.y*b.x-a.x*b.y)/(b.x*b.x+b.y*b.y)))
-#define cx_modulus(a) length(a)
-#define cx_conj(a) vec2(a.x,-a.y)
-#define cx_arg(a) atan2(a.y,a.x)
-#define cx_sin(a) vec2(sin(a.x) * cosh(a.y), cos(a.x) * sinh(a.y))
-#define cx_cos(a) vec2(cos(a.x) * cosh(a.y), -sin(a.x) * sinh(a.y))
+#define SPHERE_COL vec3(0.6, 0.3, 0.1)
+#define MOUTH_COL vec3(0.9, 0.6, 0.1)
+#define TENTACLE_COL vec3(0.06)
 
-vec2 cx_sqrt(vec2 a) {
-	float r = sqrt(a.x*a.x+a.y*a.y);
-	float rpart = sqrt(0.5*(r+a.x));
-	float ipart = sqrt(0.5*(r-a.x));
-	if (a.y < 0.0) ipart = -ipart;
-	return vec2(rpart,ipart);
+#define GAMMA 2.2
+
+//---
+#define resolution iResolution
+#define mouse iMouse
+#define pi2 6.283185307179586476925286766559
+#define pih 1.5707963267949
+
+// Using the nebula function of the "Star map shader" by morgan3d 
+// as environment map and light sphere texture (https://www.shadertoy.com/view/4sBXzG)
+const float pi= 3.1415927;const int NUM_OCTAVES = 4;float hash(float n) { return fract(sin(n) * 1e4); } float hash(vec2 p){return fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 +p.x))));}float noise(float x) { float i = floor(x);float f = fract(x); float u = f * f * (3.0 - 2.0 * f);return mix(hash(i),hash(i+1.0),u);}float noise(vec2 x){vec2 i=floor(x);vec2 f=fract(x);	float a = hash(i); float b=hash(i + vec2(1.0,0.0));float c=hash(i+vec2(0.0, 1.0)); float d = hash(i + vec2(1.0, 1.0)); vec2 u = f * f * (3.0 - 2.0 * f); return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y; }float NOISE(vec2 x){ float v = 0.0; float a = 0.5; vec2 shift=vec2(100);mat2 rot=mat2(cos(0.5),sin(0.5), -sin(0.5), cos(0.50)); for (int i = 0; i < NUM_OCTAVES;++i) {v+=a*noise(x);x = rot* x * 2.0 + shift; a *= 0.5; } return v; }float square(float x) { return x * x;}mat3 rotation(float yaw, float pitch){return mat3(cos(yaw),0,-sin(yaw), 0, 1, 0, sin(yaw), 0, cos(yaw)) * mat3(1, 0, 0, 0, cos(pitch), sin(pitch), 0, -sin(pitch), cos(pitch)); }vec3 nebula(vec3 dir) { float purple = abs(dir.x); float yellow = noise(dir.y);vec3 streakyHue = vec3(purple + yellow, yellow * 0.7, purple);vec3 puffyHue = vec3(0.8, 0.1, 1.0);float streaky = min(1.0, 8.0 * pow(NOISE(dir.yz*square(dir.x) * 13.0+ dir.xy * square(dir.z) * 7.0 + vec2(150.0, 2.0)),10.0));float puffy=square(NOISE(dir.xz * 4.0 + vec2(30, 10)) * dir.y);
+return pow(clamp(puffyHue * puffy * (1.0 - streaky) + streaky * streakyHue, 0.0, 1.0), vec3(1.0/2.2));}
+// ---
+
+float sdBox( vec3 p, vec3 b ) 
+{	
+	vec3 d = abs(p) - b;
+	return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
 }
 
-vec2 cx_tan(vec2 a) {return cx_div(cx_sin(a), cx_cos(a)); }
-
-vec2 cx_log(vec2 a) {
-	float rpart = sqrt((a.x*a.x)+(a.y*a.y));
-	float ipart = atan(a.y,a.x);
-	if (ipart > PI) ipart=ipart-(2.0*PI);
-	return vec2(log(rpart),ipart);
-}
-
-vec2 cx_mobius(vec2 a) {
-	vec2 c1 = a - vec2(1.0,0.0);
-	vec2 c2 = a + vec2(1.0,0.0);
-	return cx_div(c1, c2);
-}
-
-vec2 cx_z_plus_one_over_z(vec2 a) {
-	return a + cx_div(vec2(1.0,0.0), a);
-}
-
-vec2 cx_z_squared_plus_c(vec2 z, vec2 c) {
-	return cx_mul(z, z) + c;
-}
-
-vec2 cx_sin_of_one_over_z(vec2 z) {
-	return cx_sin(cx_div(vec2(1.0,0.0), z));
-}
-
-
-////////////////////////////////////////////////////////////
-// end Complex Number math by julesb
-////////////////////////////////////////////////////////////
-
-
-// From Stackoveflow
-// http://stackoverflow.com/questions/15095909/from-rgb-to-hsv-in-opengl-glsl
-vec3 hsv2rgb(vec3 c)
+float sdSphere(vec3 p, float r)
 {
-	vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-	vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-	return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+	return length(p)-r;
 }
 
-// My own additions to complex number math
-#define cx_sub(a, b) vec2(a.x - b.x, a.y - b.y)
-#define cx_add(a, b) vec2(a.x + b.x, a.y + b.y)
-
-vec2 cx_to_polar(vec2 a) {
-  float phi = atan(a.x, a.y);
-  float r = sqrt(a.x * a.x + a.y * a.y);
-  return vec2(r, phi);
+float sdCappedCylinder( vec3 p, vec2 h )
+{
+  vec2 d = abs(vec2(length(p.xy),p.z)) - h;
+  return min(max(d.x,d.y),0.0) + length(max(d,0.0));
 }
 
-
-// End utils, here comes the actual fractal
-
-// z^3 - 1
-vec2 f(vec2 z) {
-  vec2 z3 = cx_mul(z, cx_mul(z, z));
-  return vec2(z3.x - 1.0, z3.y);
+vec2 rotate(vec2 p, float a)
+{
+	vec2 r;
+	r.x = p.x*cos(a) - p.y*sin(a);
+	r.y = p.x*sin(a) + p.y*cos(a);
+	return r;
 }
 
-// f(z) derivated
-// 3z^2
-vec2 fPrim(vec2 z) {
-  vec2 z2 = cx_mul(z, z);
-  return vec2(3.0*z2.x, 3.0*z2.y);
+// polynomial smooth min (k = 0.1); by iq
+float smin(float a, float b, float k)
+{
+    float h = clamp(0.5+0.5*(b-a)/k, 0.0, 1.0);
+    return mix(b, a, h) - k*h*(1.0-h);
 }
 
+// globals
+float glow, bite;
+vec3 sphere_col;
+vec3 sun = normalize(SUN_POS);
+float focus = 5.0;
+float far = 23.0;
 
-int maxIterations = 300;
-vec3 newtonRapson(vec2 z) {
-  vec2 oldZ = z;
-  int iterations = 0;
-  for(int i = 0; i < maxIterations; i++){
-	z = cx_sub(z, cx_div(f(z), fPrim(z)));
-	if(abs(oldZ.x - z.x) < 0.001 && abs(oldZ.y - z.y) < 0.001) {
-	  break;
+struct Hit
+{
+	float d;
+	vec3 color;
+	float edge;
+};
+
+Hit scene(vec3 p)
+{
+	float d, d1, d2, d3, f, e = 0.15;
+	
+	vec3 q = p;
+	q.xy = rotate(q.xy, 1.5);
+	
+	// center sphere
+	d1 = sdSphere(q, 0.3);
+	d = d1; 
+    vec3 col = sphere_col; 
+    
+	// tentacles
+	float r = length(q);
+	float a = atan(q.z, q.x);
+	a += 0.4*sin(r-iGlobalTime);
+	
+	q = vec3(a*float(NUM_TENTACLES)/pi2,q.y,length(q.xz)); // circular domain
+	q = vec3(mod(q.x,1.0)-0.5*1.0,q.y,q.z); // repetition
+	
+	d3 = sdCappedCylinder(q-vec3(0.0,0.0,0.9+bite), vec2(0.1-(r-bite)/18.0,0.8));
+	d2 = min(d3, sdBox(q-vec3(0.0, 0.0, 0.1+bite), vec3(0.2, 0.2, 0.2))); // close box
+	d2 = smin(d2, sdBox(q-vec3(0.0, 0.0, 0.4+bite), vec3(0.2, 0.05, 0.4)), 0.1); // wide box
+	
+    f = smoothstep(0.11, 0.28, d2-d1);
+	col = mix(MOUTH_COL, col, f);
+	e = mix(e, 0.0, f);
+	d = smin(d1, d2, 0.24);
+    
+	col = mix(TENTACLE_COL, col, smoothstep(0., 0.48, d3-d));
+	
+    #ifdef SUN_SPHERE
+	d = min(d, sdSphere(p-sun, 0.1));
+    #endif
+    
+	#ifdef BUMPS
+	for(int i = 0; i < NUM_BUMPS; i++)
+	{
+        d2 = float(i);
+        d1 = sdSphere(p-0.18*smoothstep(0.1, 1.0, glow)*
+                      vec3(sin(4.0*iGlobalTime+d2*0.6), sin(5.3*iGlobalTime+d2*1.4), cos(5.8*iGlobalTime+d2*0.6)),
+                      0.03);
+		
+		d = smin(d1, d, 0.2);
+		//d = min(d1, d);
 	}
-	oldZ = z;
-	iterations++;
-  }
-  return vec3(float(iterations), cx_to_polar(z));
+	#endif
+	
+	#ifdef BACKGROUND
+	q = p;
+	q.yz = mod(q.yz, 1.0);
+	q -= vec3(-.6, 0.5, 0.5);
+	d1 = sdBox(q, vec3(0.1, 0.48, 0.48));
+	if (d1 < d) { d = d1; col = vec3(0.1); }
+	#endif
+	
+	return Hit(d, col, e);
 }
 
-
-void mainImage( out vec4 fragColor, in vec2 fragCoord )
+vec3 normal(vec3 p)
 {
-	vec2 uv = fragCoord.xy / iResolution.xy;
-	float zoom = (sin(iGlobalTime/2.0)*0.5+0.5)*9.0+0.1;
-	vec2 scaled = zoom*(uv*4.0-2.0);
-	float cs = cos(iGlobalTime/2.0);
-	float sn = sin(iGlobalTime/2.0);
-	vec2 rotated = vec2(scaled.x * cs - scaled.y * sn, scaled.x * sn + scaled.y * cs);
-	vec3 result = newtonRapson(rotated);
-	vec3 color = hsv2rgb(vec3(result.z*1.3, 1.5, 1.0));
+	float c = scene(p).d;
+	vec2 h = vec2(0.01, 0.0);
+	return normalize(vec3(scene(p + h.xyy).d - c, 
+						  scene(p + h.yxy).d - c, 
+		                  scene(p + h.yyx).d - c));
+}
 
-	// "It is not, for now, mandatory but recommended to leave the alpha channel to 1.0."
-	//float alpha = result.x/float(maxIterations);
-	fragColor = vec4(color, 1.0);
+float edges(vec3 p) // by srtuss
+{
+	float acc = 0.0;
+	float h = 0.01;
+	acc += scene(p + vec3(-h, -h, -h)).d;
+	acc += scene(p + vec3(-h, -h, +h)).d;
+	acc += scene(p + vec3(-h, +h, -h)).d;
+	acc += scene(p + vec3(-h, +h, +h)).d;
+	acc += scene(p + vec3(+h, -h, -h)).d;
+	acc += scene(p + vec3(+h, -h, +h)).d;
+	acc += scene(p + vec3(+h, +h, -h)).d;
+	acc += scene(p + vec3(+h, +h, +h)).d;
+	return acc / h;
+}
+
+vec3 colorize(Hit hit, vec3 n, vec3 dir, const in vec3 lightPos)
+{
+	float diffuse = 0.3*max(0.0, dot(n, lightPos));
+	
+	vec3 ref = normalize(reflect(dir, n));
+	float specular = 0.4*pow(max(0.0, dot(ref, lightPos)), 6.5);
+
+	return (hit.color.rgb + 
+			diffuse * vec3(0.9) +
+			specular * vec3(1.0));
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord ) 
+{
+    //time = iGlobalTime;
+    glow = max(0.0, min(1.0, 2.0*sin(iGlobalTime*0.7-5.0)));
+    bite = smoothstep(0.0, 1.0, 1.6*sin(iGlobalTime*0.7));
+    sphere_col = SPHERE_COL*glow;
+
+    
+    vec2 pos = (fragCoord.xy*2.0 - resolution.xy) / resolution.y;
+	
+	float d = clamp(1.5*sin(0.3*iGlobalTime), 0.5, 1.0);
+	vec3 cp = vec3(10.0*d, -2.3*d, -6.2*d+4.0*clamp(2.0*sin(iGlobalTime*0.5), 0.0, 1.0)); // anim curious spectator
+	
+	if (mouse.z > 0.5)
+	{
+		vec2 mrel = mouse.xy/resolution.xy-0.5;
+		float mdis = (8.0+6.0*mrel.y);
+		cp = vec3(mdis*cos(-mrel.x*pih), 4.0*mrel.y, mdis*sin(-mrel.x*pih));
+	}
+	
+    vec3 ct = vec3(0.0, 0.0, 0.0);
+   	vec3 cd = normalize(ct-cp);
+    vec3 cu  = vec3(0.0, 1.0, 0.0);
+    vec3 cs = cross(cd, cu);
+    vec3 dir = normalize(cs*pos.x + cu*pos.y + cd*focus);	
+	
+    Hit h;
+	vec3 col = vec3(0.16);
+	vec3 ray = cp;
+	float dist = 0.0;
+	
+	// raymarch scene
+    for(int i=0; i < 60; i++) 
+	{
+        h = scene(ray);
+		
+		if(h.d < 0.0001) break;
+		
+		dist += h.d;
+		ray += dir * h.d * 0.9;
+
+        if(dist > far) 
+		{ 
+			dist = far; 
+			break; 
+		}
+    }
+
+	float m = (1.0 - dist/far);
+	vec3 n = normal(ray);
+	col = colorize(h, n, dir, sun)*m;
+
+    #ifdef EDGES
+	float edge = edges(ray);
+	col = mix(col, vec3(0.0), h.edge*edge*smoothstep(0.3, 0.35, length(ray)));
+    #endif
+    
+	vec3 neb = nebula(n);
+	col += min(glow, 0.1)*neb.brg;
+	
+	// HARD SHADOW with low number of rm iterations (from obj to sun)
+	#ifdef HARD_SHADOW
+	vec3 ray1 = ray;
+	dir = normalize(SUN_POS - ray1);
+	ray1 += n*0.002;
+	
+	float sunDist = length(SUN_POS-ray1);
+	dist = 0.0;
+	
+	for(int i=0; i < 35; i++) 
+	{
+		h = scene(ray1 + dir*dist);
+		dist += h.d;
+		if (abs(h.d) < 0.001) break;
+	}
+
+	col -= 0.24*smoothstep(0.5, -0.3, min(dist, sunDist)/max(0.0001,sunDist));
+	#endif
+	
+	// ILLUMINATION & free shadow with low number of rm iterations (from obj to sphere)
+	#ifdef GLOW
+	dir = normalize(-ray);
+	ray += n*0.002;
+	
+	float sphereDist = max(0.0001, length(ray)-0.3);
+	dist = 0.0;
+	
+	for(int i=0; i < 35; i++) 
+	{
+		h = scene(ray + dir*dist);
+		dist += h.d;
+		if (abs(h.d) < 0.001) break;
+	}
+	
+	vec3 neb1 = nebula(dir*rotation(0.0, iGlobalTime*0.4)).brg;
+    
+	col += (0.7*sphere_col+glow*neb1)*(0.6*(smoothstep(3.0, 0.0, sphereDist))*min(dist, sphereDist)/sphereDist + 
+		   0.6*smoothstep(0.1, 0.0, sphereDist));
+	#endif
+    
+	col -= 0.2*smoothstep(0.6,3.7,length(pos));
+	col = clamp(col, vec3(0.0), vec3(1.0));
+	col = pow(col, vec3(2.2, 2.4, 2.5)) * 3.9;
+	col = pow(col, vec3(1.0 / GAMMA));
+    
+	fragColor = vec4(col, 1.0);
 }
