@@ -108,8 +108,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::showEvent(QShowEvent* e)
 {
-	updateFragmentShader();
 	QMainWindow::showEvent(e);
+	updateFragmentShader();
 }
 
 void MainWindow::setShaderFramework(ShaderFramework::Framework framework)

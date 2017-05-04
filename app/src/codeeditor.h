@@ -27,12 +27,15 @@ public:
 protected:
 	void resizeEvent(QResizeEvent *event) override;
 
-private slots:
+private:
 	void updateLineNumberAreaWidth(int newBlockCount);
 	void highlightCurrentLine();
 	void updateLineNumberArea(const QRect &, int);
 
+	void applyTextBackgroundColor();
+
 private:
+	QColor _textBgColor;
 	QWidget* _lineNumberArea = nullptr;
 };
 
