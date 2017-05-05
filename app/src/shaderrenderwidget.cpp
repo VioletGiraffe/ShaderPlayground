@@ -64,6 +64,10 @@ void ShaderRenderWidget::initializeGL()
 	if (!_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/resources/default_vertex_shader.vsh"))
 		qDebug() << "Failed to add vertex shader:\n" << _program->log();
 
+	qDebug() << '\n'
+		<< (const char*)glGetString(GL_RENDERER) << '\n'
+		<< (const char*)glGetString(GL_VERSION);
+
 	connect(&timer, &QTimer::timeout, this, [this](){update();});
 	timer.start(10);
 }
