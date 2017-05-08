@@ -13,8 +13,8 @@ uniform mediump float totalTime;
 // ShaderToy compatibility variables
 vec2 iResolution = screenSize;
 vec3 iMouse = mousePosition;
-float mediump iGlobalTime = totalTime / 1000.0;
-float highp iTimeDelta = frameTime;
+float iGlobalTime = totalTime / 1000.0;
+float iTimeDelta = frameTime;
 
 %1%
 
