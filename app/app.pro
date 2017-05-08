@@ -2,7 +2,7 @@ QT = core gui widgets opengl
 
 TARGET = ShaderPlayground
 TEMPLATE = app
-CONFIG += c++11
+CONFIG += c++14
 
 mac* | linux*{
 	CONFIG(release, debug|release):CONFIG += Release
@@ -27,6 +27,8 @@ win*{
 
 	Debug:QMAKE_LFLAGS += /INCREMENTAL
 	Release:QMAKE_LFLAGS += /OPT:REF /OPT:ICF
+
+	LIBS += -lopengl32
 }
 
 linux*|mac*{
@@ -46,7 +48,6 @@ INCLUDEPATH += \
 	../qtutils/
 
 LIBS += -L$${DESTDIR} -lcpputils -lqtutils
-LIBS += -lopengl32
 
 HEADERS += \
 	src/mainwindow.h \
