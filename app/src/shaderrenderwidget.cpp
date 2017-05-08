@@ -5,6 +5,7 @@ DISABLE_COMPILER_WARNINGS
 #include <QDebug>
 #include <QMatrix4x4>
 #include <QMouseEvent>
+#include <QStringBuilder>
 #include <QVector3D>
 RESTORE_COMPILER_WARNINGS
 
@@ -34,12 +35,12 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 		return _fragmentShader->log();
 
 	if (!_program->addShader(_fragmentShader.get()))
-		qDebug() << "Failed to add fragment shader:\n" << _program->log();
+		return "Failed to add fragment shader.\n\n" % _program->log();
 
 	if (!_program->link())
-		qDebug() << "Failed to link the program\n:" << _program->log();
+		return "Failed to link the program.\n\n" % _program->log();
 
-	return _program->log();
+	return QString();
 }
 
 float ShaderRenderWidget::frameRenderingPeriod() const
