@@ -46,13 +46,14 @@ INCLUDEPATH += \
 	../qtutils/
 
 LIBS += -L$${DESTDIR} -lcpputils -lqtutils
+LIBS += -lopengl32
 
 HEADERS += \
 	src/mainwindow.h \
 	src/shaderrenderwidget.h \
 	src/codeeditor.h \
 	src/shadersyntaxhighlighter.h \
-    src/shaderframework.h
+	src/shaderframework.h
 
 SOURCES += \
 	src/main.cpp \
@@ -60,12 +61,12 @@ SOURCES += \
 	src/shaderrenderwidget.cpp \
 	src/codeeditor.cpp \
 	src/shadersyntaxhighlighter.cpp \
-    src/shaderframework.cpp
+	src/shaderframework.cpp
 
 FORMS += \
 	src/mainwindow.ui
 
 RESOURCES += \
-    shaders.qrc
+	shaders.qrc
 
 DISTFILES +=
