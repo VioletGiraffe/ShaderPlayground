@@ -15,6 +15,13 @@ int main(int argc, char *argv[])
 		qDebug() << message;
 	});
 
+	qDebug() << "Running with Qt version" << qVersion();
+	qDebug() << "Built with Qt version" << QT_VERSION_STR;
+
+	assert_r(QString(qVersion()) == QT_VERSION_STR);
+
+	QApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+
 //	QApplication::setAttribute(Qt::AA_UseOpenGLES);
 // 	QSurfaceFormat format;
 // 	format.setVersion(3, 0);
