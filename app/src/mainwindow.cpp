@@ -45,6 +45,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->shaderWidgetsHost->setLayout(overlayLayout);
 
+	const auto currentFramework = (ShaderFramework::Framework)CSettings().value(SETTINGS_KEY_UI_SHADER_FRAMEWORK, ShaderFramework::ShaderToy).toInt();
+	_shaderFramework.setFrameworkMode(currentFramework);
+	if (currentFramework == ShaderFramework::GLSL)
+		ui->actionBarebone_GLSL->setChecked(true);
+	else
+		ui->actionShadertoy_compatibility->setChecked(true);
+
 	QFont editorFont;
 	editorFont.setFamily("Consolas");
 	editorFont.setFixedPitch(true);
@@ -60,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	_shaderEditorWidget->setTextBackgroundColor(QColor(20, 20, 20, 130));
 
-	_shaderEditorWidget->setPlainText(textFromResource(":/resources/default_fragment_shader_shadertoy.fsh"));
+	_shaderEditorWidget->setPlainText(textFromResource(currentFramework == ShaderFramework::ShaderToy ? ":/resources/default_fragment_shader_shadertoy.fsh" : ":/resources/default_fragment_shader_barebone.fsh"));
 	_shaderEditorWidget->setLineWrapMode(QPlainTextEdit::NoWrap);
 	_shaderEditorWidget->setTabStopWidth(4 * _shaderEditorWidget->fontMetrics().width(' '));
 	connect(_shaderEditorWidget, &QPlainTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
@@ -79,13 +86,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	auto shaderFrameworkModeMenuGroup = new QActionGroup(this);
 	shaderFrameworkModeMenuGroup->addAction(ui->actionBarebone_GLSL);
 	shaderFrameworkModeMenuGroup->addAction(ui->actionShadertoy_compatibility);
-
-	const auto currentFramework = (ShaderFramework::Framework)CSettings().value(SETTINGS_KEY_UI_SHADER_FRAMEWORK, ShaderFramework::ShaderToy).toInt();
-	_shaderFramework.setFrameworkMode(currentFramework);
-	if (currentFramework == ShaderFramework::GLSL)
-		ui->actionBarebone_GLSL->setChecked(true);
-	else
-		ui->actionShadertoy_compatibility->setChecked(true);
 
 	connect(ui->actionBarebone_GLSL, &QAction::triggered, this, [this]() {
 		setShaderFramework(ShaderFramework::GLSL);
