@@ -59,6 +59,7 @@ void ShaderRenderWidget::initializeGL()
 {
 	initializeOpenGLFunctions();
 	glEnable(GL_FRAMEBUFFER_SRGB);
+	LogGlError;
 
 	_program = std::make_unique<QOpenGLShaderProgram>();
 	_fragmentShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Fragment);

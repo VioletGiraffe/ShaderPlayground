@@ -45,6 +45,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	ui->shaderWidgetsHost->setLayout(overlayLayout);
 
+	auto shaderFrameworkModeMenuGroup = new QActionGroup(this);
+	shaderFrameworkModeMenuGroup->addAction(ui->actionBarebone_GLSL);
+	shaderFrameworkModeMenuGroup->addAction(ui->actionShadertoy_compatibility);
+
 	const auto currentFramework = (ShaderFramework::Framework)CSettings().value(SETTINGS_KEY_UI_SHADER_FRAMEWORK, ShaderFramework::ShaderToy).toInt();
 	_shaderFramework.setFrameworkMode(currentFramework);
 	if (currentFramework == ShaderFramework::GLSL)
@@ -82,10 +86,6 @@ MainWindow::MainWindow(QWidget *parent) :
 		else
 			showNormal();
 	});
-
-	auto shaderFrameworkModeMenuGroup = new QActionGroup(this);
-	shaderFrameworkModeMenuGroup->addAction(ui->actionBarebone_GLSL);
-	shaderFrameworkModeMenuGroup->addAction(ui->actionShadertoy_compatibility);
 
 	connect(ui->actionBarebone_GLSL, &QAction::triggered, this, [this]() {
 		setShaderFramework(ShaderFramework::GLSL);
