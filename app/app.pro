@@ -54,7 +54,8 @@ HEADERS += \
 	src/shaderrenderwidget.h \
 	src/codeeditor.h \
 	src/shadersyntaxhighlighter.h \
-	src/shaderframework.h
+	src/shaderframework.h \
+    src/document/csaveabledocument.h
 
 SOURCES += \
 	src/main.cpp \
@@ -62,7 +63,8 @@ SOURCES += \
 	src/shaderrenderwidget.cpp \
 	src/codeeditor.cpp \
 	src/shadersyntaxhighlighter.cpp \
-	src/shaderframework.cpp
+	src/shaderframework.cpp \
+    src/document/csaveabledocument.cpp
 
 FORMS += \
 	src/mainwindow.ui
