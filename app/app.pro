@@ -55,7 +55,8 @@ HEADERS += \
 	src/codeeditor.h \
 	src/shadersyntaxhighlighter.h \
 	src/shaderframework.h \
-    src/document/csaveabledocument.h
+    src/document/csaveabledocument.h \
+    src/document/cdocumenthandler.h
 
 SOURCES += \
 	src/main.cpp \
@@ -64,7 +65,8 @@ SOURCES += \
 	src/codeeditor.cpp \
 	src/shadersyntaxhighlighter.cpp \
 	src/shaderframework.cpp \
-    src/document/csaveabledocument.cpp
+    src/document/csaveabledocument.cpp \
+    src/document/cdocumenthandler.cpp
 
 FORMS += \
 	src/mainwindow.ui

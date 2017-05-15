@@ -17,6 +17,12 @@ void CSaveableDocument::markAsUnsaved()
 	_hasUnsavedChanges = true;
 }
 
+void CSaveableDocument::setFilePath(const QString& filePath)
+{
+	_filePath = filePath;
+	_hasUnsavedChanges = !QFileInfo(filePath).exists();
+}
+
 CSaveableDocument::FileLoadResult CSaveableDocument::load(const QString& filePath)
 {
 	QFile file(filePath);
@@ -26,6 +32,11 @@ CSaveableDocument::FileLoadResult CSaveableDocument::load(const QString& filePat
 
 	_filePath = filePath;
 	return FileLoadResult{file.readAll(), true};
+}
+
+CSaveableDocument::FileLoadResult CSaveableDocument::load()
+{
+	return load(_filePath);
 }
 
 inline bool save(const QByteArray& data, const QString& filePath)
@@ -64,7 +75,7 @@ QString CSaveableDocument::filePath() const
 	return _filePath;
 }
 
-QString CSaveableDocument::name()
+QString CSaveableDocument::name() const
 {
 	return QFileInfo(_filePath).fileName();
 }

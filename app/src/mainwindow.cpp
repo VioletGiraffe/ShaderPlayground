@@ -7,11 +7,13 @@
 #include "widgets/layouts/coverlaylayout.h"
 #include "assert/advanced_assert.h"
 #include "settings/csettings.h"
+#include "aboutdialog/caboutdialog.h"
 
 DISABLE_COMPILER_WARNINGS
 #include "ui_mainwindow.h"
 
 #include <QActionGroup>
+#include <QMessageBox>
 #include <QStringBuilder>
 RESTORE_COMPILER_WARNINGS
 
@@ -80,6 +82,33 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->mainSplitter->setStretchFactor(1, 0);
 	ui->mainSplitter->setSizes({0, 100});
 
+	connect(ui->actionOpen, &QAction::triggered, this, [this]() {
+		if (!_documentHandler.open())
+		{
+			QMessageBox::warning(this, "Failed to open file", "Failed to open the selected file.");
+			return;
+		}
+
+		const auto result = _documentHandler.loadContents();
+		if (!result.loadedSuccessfully)
+		{
+			QMessageBox::warning(this, "Failed to load file", "Failed to load the file " % _documentHandler.documentName());
+			return;
+		}
+
+		_shaderEditorWidget->setPlainText(QString::fromUtf8(result.data));
+	});
+
+	connect(ui->actionSave, &QAction::triggered, this, [this]() {
+		_documentHandler.save(_shaderEditorWidget->toPlainText().toUtf8());
+	});
+
+	connect(ui->actionSave_as, &QAction::triggered, this, [this]() {
+		_documentHandler.saveAs(_shaderEditorWidget->toPlainText().toUtf8());
+	});
+
+	connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
+
 	connect(ui->actionToggle_fullscreen_mode, &QAction::triggered, this, [this](bool checked) {
 		if (checked)
 			showFullScreen();
@@ -95,7 +124,9 @@ MainWindow::MainWindow(QWidget *parent) :
 		setShaderFramework(ShaderFramework::ShaderToy);
 	});
 
-	connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
+	connect(ui->actionAbout, &QAction::triggered, this, [this]() {
+		CAboutDialog(this).exec();
+	});
 
 	connect(&_fpsUpdaterTimer, &QTimer::timeout, this, &MainWindow::updateWindowTitle);
 	_fpsUpdaterTimer.start(100);

@@ -17,12 +17,14 @@ public:
 		bool loadedSuccessfully;
 	};
 
+	void setFilePath(const QString& filePath);
 	FileLoadResult load(const QString& filePath);
+	FileLoadResult load();
 	bool save(const QByteArray& data);
 	bool saveAs(const QByteArray& data, const QString& fileName);
 
 	QString filePath() const;
-	QString name();
+	QString name() const;
 
 private:
 	QString _filePath;

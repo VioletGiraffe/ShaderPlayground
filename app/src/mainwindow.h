@@ -2,6 +2,7 @@
 
 #include "compiler/compiler_warnings_control.h"
 #include "shaderframework.h"
+#include "document/cdocumenthandler.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QMainWindow>
@@ -35,6 +36,7 @@ private:
 	ShaderRenderWidget* _renderWidget;
 
 	ShaderFramework _shaderFramework;
+	CDocumentHandler _documentHandler;
 
 	QTimer _fpsUpdaterTimer;
 };
