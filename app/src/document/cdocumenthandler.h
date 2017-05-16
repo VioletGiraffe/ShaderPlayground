@@ -23,6 +23,7 @@ public:
 	QString documentPath() const;
 	QString documentName() const;
 	bool hasUnsavedChanges() const;
+	void markAsModified(bool modified);
 
 private:
 	CSaveableDocument _document;

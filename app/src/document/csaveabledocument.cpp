@@ -12,9 +12,9 @@ bool CSaveableDocument::hasUnsavedChanges() const
 	return _hasUnsavedChanges;
 }
 
-void CSaveableDocument::markAsUnsaved()
+void CSaveableDocument::markAsModified(bool modified)
 {
-	_hasUnsavedChanges = true;
+	_hasUnsavedChanges = modified;
 }
 
 void CSaveableDocument::setFilePath(const QString& filePath)

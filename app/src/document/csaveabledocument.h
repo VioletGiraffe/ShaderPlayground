@@ -10,7 +10,7 @@ class CSaveableDocument
 {
 public:
 	bool hasUnsavedChanges() const;
-	void markAsUnsaved();
+	void markAsModified(bool modified = true);
 
 	struct FileLoadResult {
 		QByteArray data;

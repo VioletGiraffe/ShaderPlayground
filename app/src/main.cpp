@@ -21,10 +21,13 @@ int main(int argc, char *argv[])
 		qDebug() << message;
 	});
 
-	qDebug() << "Running with Qt version" << qVersion();
 	qDebug() << "Built with Qt version" << QT_VERSION_STR;
 
-	assert_r(QString(qVersion()) == QT_VERSION_STR);
+	if(QString(qVersion()) != QT_VERSION_STR)
+	{
+		qDebug() << "Running with Qt version" << qVersion();
+		assert_unconditional_r("Current Qt version doesn't match the one application was built with.");
+	}
 
 	QApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 

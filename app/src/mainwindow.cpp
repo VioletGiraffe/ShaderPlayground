@@ -125,7 +125,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	});
 
 	connect(ui->actionAbout, &QAction::triggered, this, [this]() {
-		CAboutDialog(this).exec();
+		CAboutDialog("0.1", this, "2017").exec();
 	});
 
 	connect(&_fpsUpdaterTimer, &QTimer::timeout, this, &MainWindow::updateWindowTitle);
@@ -154,9 +154,14 @@ void MainWindow::updateFragmentShader()
 {
 	const QString log = _renderWidget->setFragmentShader(_shaderFramework.processedShaderSource(_shaderEditorWidget->toPlainText()));
 	ui->output->setPlainText(log);
+
+	const bool modified = _shaderEditorWidget->document()->isModified();
+	_documentHandler.markAsModified(modified);
+	setWindowModified(modified);
 }
 
 void MainWindow::updateWindowTitle()
 {
-	setWindowTitle("Shader Playground - " % QString::number((int)(1000.0f / _renderWidget->frameRenderingPeriod())) % " fps");
+	const QString documentName = !_documentHandler.documentName().isEmpty() ? _documentHandler.documentName() : "Untitled shader";
+	setWindowTitle(documentName % "[*] - " % QString::number((int)(1000.0f / _renderWidget->frameRenderingPeriod())) % " fps");
 }

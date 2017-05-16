@@ -60,3 +60,8 @@ bool CDocumentHandler::hasUnsavedChanges() const
 {
 	return _document.hasUnsavedChanges();
 }
+
+void CDocumentHandler::markAsModified(bool modified)
+{
+	_document.markAsModified(modified);
+}
