@@ -82,6 +82,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->mainSplitter->setStretchFactor(1, 0);
 	ui->mainSplitter->setSizes({0, 100});
 
+	connect(ui->actionNew, &QAction::triggered, this, [this](){
+
+	});
+
 	connect(ui->actionOpen, &QAction::triggered, this, [this]() {
 		if (!_documentHandler.open())
 		{
@@ -89,22 +93,21 @@ MainWindow::MainWindow(QWidget *parent) :
 			return;
 		}
 
-		const auto result = _documentHandler.loadContents();
-		if (!result.loadedSuccessfully)
+		if (!_documentHandler.loadContents())
 		{
 			QMessageBox::warning(this, "Failed to load file", "Failed to load the file " % _documentHandler.documentName());
 			return;
 		}
 
-		_shaderEditorWidget->setPlainText(QString::fromUtf8(result.data));
+		_shaderEditorWidget->setPlainText(QString::fromUtf8(_documentHandler.contents()));
 	});
 
 	connect(ui->actionSave, &QAction::triggered, this, [this]() {
-		_documentHandler.save(_shaderEditorWidget->toPlainText().toUtf8());
+		_documentHandler.save();
 	});
 
 	connect(ui->actionSave_as, &QAction::triggered, this, [this]() {
-		_documentHandler.saveAs(_shaderEditorWidget->toPlainText().toUtf8());
+		_documentHandler.saveAs();
 	});
 
 	connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
@@ -155,9 +158,8 @@ void MainWindow::updateFragmentShader()
 	const QString log = _renderWidget->setFragmentShader(_shaderFramework.processedShaderSource(_shaderEditorWidget->toPlainText()));
 	ui->output->setPlainText(log);
 
-	const bool modified = _shaderEditorWidget->document()->isModified();
-	_documentHandler.markAsModified(modified);
-	setWindowModified(modified);
+	_documentHandler.setContents(_shaderEditorWidget->toPlainText().toUtf8());
+	setWindowModified(_documentHandler.hasUnsavedChanges());
 }
 
 void MainWindow::updateWindowTitle()

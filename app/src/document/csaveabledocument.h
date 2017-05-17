@@ -9,24 +9,24 @@ RESTORE_COMPILER_WARNINGS
 class CSaveableDocument
 {
 public:
-	bool hasUnsavedChanges() const;
-	void markAsModified(bool modified = true);
+	CSaveableDocument& operator=(const CSaveableDocument& other);
 
-	struct FileLoadResult {
-		QByteArray data;
-		bool loadedSuccessfully;
-	};
+	void setContents(const QByteArray& contents);
+	QByteArray contents() const;
+
+	bool hasUnsavedChanges() const;
 
 	void setFilePath(const QString& filePath);
-	FileLoadResult load(const QString& filePath);
-	FileLoadResult load();
-	bool save(const QByteArray& data);
-	bool saveAs(const QByteArray& data, const QString& fileName);
+	bool load(const QString& filePath);
+	bool load();
+	bool save();
+	bool saveAs(const QString& fileName);
 
 	QString filePath() const;
 	QString name() const;
 
 private:
+	QByteArray _contents;
 	QString _filePath;
 	bool _hasUnsavedChanges = false;
 };

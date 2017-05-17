@@ -7,14 +7,28 @@ DISABLE_COMPILER_WARNINGS
 #include <QFileInfo>
 RESTORE_COMPILER_WARNINGS
 
+CSaveableDocument& CSaveableDocument::operator=(const CSaveableDocument& other)
+{
+	_filePath = other._filePath;
+	_hasUnsavedChanges = other._hasUnsavedChanges;
+
+	return *this;
+}
+
+void CSaveableDocument::setContents(const QByteArray& contents)
+{
+	_hasUnsavedChanges = _contents != contents;
+	_contents = contents;
+}
+
+QByteArray CSaveableDocument::contents() const
+{
+	return _contents;
+}
+
 bool CSaveableDocument::hasUnsavedChanges() const
 {
 	return _hasUnsavedChanges;
-}
-
-void CSaveableDocument::markAsModified(bool modified)
-{
-	_hasUnsavedChanges = modified;
 }
 
 void CSaveableDocument::setFilePath(const QString& filePath)
@@ -23,18 +37,19 @@ void CSaveableDocument::setFilePath(const QString& filePath)
 	_hasUnsavedChanges = !QFileInfo(filePath).exists();
 }
 
-CSaveableDocument::FileLoadResult CSaveableDocument::load(const QString& filePath)
+bool CSaveableDocument::load(const QString& filePath)
 {
 	QFile file(filePath);
-	const auto failure = FileLoadResult{QByteArray(), false};
-	assert_and_return_r(file.exists(), failure);
-	assert_and_return_r(file.open(QFile::ReadOnly), failure);
+	assert_and_return_r(file.exists(), false);
+	assert_and_return_r(file.open(QFile::ReadOnly), false);
 
 	_filePath = filePath;
-	return FileLoadResult{file.readAll(), true};
+	_contents = file.readAll();
+	_hasUnsavedChanges = false;
+	return true;
 }
 
-CSaveableDocument::FileLoadResult CSaveableDocument::load()
+bool CSaveableDocument::load()
 {
 	return load(_filePath);
 }
@@ -47,9 +62,9 @@ inline bool save(const QByteArray& data, const QString& filePath)
 	return file.write(data) == (qint64)data.size();
 }
 
-bool CSaveableDocument::save(const QByteArray& data)
+bool CSaveableDocument::save()
 {
-	if (::save(data, _filePath))
+	if (::save(_contents, _filePath))
 	{
 		_hasUnsavedChanges = false;
 		return true;
@@ -58,9 +73,9 @@ bool CSaveableDocument::save(const QByteArray& data)
 		return false;
 }
 
-bool CSaveableDocument::saveAs(const QByteArray& data, const QString& fileName)
+bool CSaveableDocument::saveAs(const QString& fileName)
 {
-	if (::save(data, fileName))
+	if (::save(_contents, fileName))
 	{
 		_hasUnsavedChanges = false;
 		_filePath = fileName;

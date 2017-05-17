@@ -2,6 +2,8 @@
 
 DISABLE_COMPILER_WARNINGS
 #include <QFileDialog>
+#include <QMessageBox>
+#include <QStringBuilder>
 RESTORE_COMPILER_WARNINGS
 
 CDocumentHandler::CDocumentHandler(QWidget* parent) : _parent(parent)
@@ -24,26 +26,26 @@ bool CDocumentHandler::open()
 	return true;
 }
 
-CSaveableDocument::FileLoadResult CDocumentHandler::loadContents()
+bool CDocumentHandler::loadContents()
 {
 	return _document.load();
 }
 
-bool CDocumentHandler::save(const QByteArray& contents)
+bool CDocumentHandler::save()
 {
 	if (!_document.filePath().isEmpty())
-		return _document.save(contents);
+		return _document.save();
 	else
-		return saveAs(contents);
+		return saveAs();
 }
 
-bool CDocumentHandler::saveAs(const QByteArray& contents)
+bool CDocumentHandler::saveAs()
 {
 	const QString path = QFileDialog::getSaveFileName(_parent, "", QFileInfo(_document.filePath()).absolutePath());
 	if (path.isEmpty())
 		return false;
 
-	return _document.saveAs(contents, path);
+	return _document.saveAs(path);
 }
 
 QString CDocumentHandler::documentPath() const
@@ -56,12 +58,28 @@ QString CDocumentHandler::documentName() const
 	return _document.name();
 }
 
+void CDocumentHandler::setContents(const QByteArray& contents)
+{
+	_document.setContents(contents);
+}
+
+QByteArray CDocumentHandler::contents() const
+{
+	return _document.contents();
+}
+
 bool CDocumentHandler::hasUnsavedChanges() const
 {
 	return _document.hasUnsavedChanges();
 }
 
-void CDocumentHandler::markAsModified(bool modified)
+void CDocumentHandler::promptToSaveChanges()
 {
-	_document.markAsModified(modified);
+	if (!_document.hasUnsavedChanges())
+		return;
+
+	if (QMessageBox::question(_parent, "Unsaved changes detected", "There are unsaved changes in " % _document.name() % ". Do you want to save them?") == QMessageBox::Yes)
+	{
+		//sa
+	}
 }
