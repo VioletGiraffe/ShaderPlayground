@@ -31,10 +31,9 @@ int main(int argc, char *argv[])
 
 	QApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 
-//	QApplication::setAttribute(Qt::AA_UseOpenGLES);
-// 	QSurfaceFormat format;
-// 	format.setVersion(3, 0);
-// 	QSurfaceFormat::setDefaultFormat(format);
+	QSurfaceFormat format;
+	format.setSwapInterval(0);
+	QSurfaceFormat::setDefaultFormat(format);
 
 	QApplication app(argc, argv);
 	app.setOrganizationName("GitHubSoft");
