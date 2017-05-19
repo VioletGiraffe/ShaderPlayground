@@ -8,7 +8,6 @@ RESTORE_COMPILER_WARNINGS
 
 CDocumentHandler::CDocumentHandler(QWidget* parent) : _parent(parent)
 {
-
 }
 
 void CDocumentHandler::setDocumentPath(const QString& path)
@@ -28,6 +27,7 @@ bool CDocumentHandler::open()
 
 bool CDocumentHandler::loadContents()
 {
+	hasUnsavedChanges();
 	return _document.load();
 }
 
@@ -73,13 +73,11 @@ bool CDocumentHandler::hasUnsavedChanges() const
 	return _document.hasUnsavedChanges();
 }
 
-void CDocumentHandler::promptToSaveChanges()
+void CDocumentHandler::handleUnsavedChanges()
 {
 	if (!_document.hasUnsavedChanges())
 		return;
 
 	if (QMessageBox::question(_parent, "Unsaved changes detected", "There are unsaved changes in " % _document.name() % ". Do you want to save them?") == QMessageBox::Yes)
-	{
-		//sa
-	}
+		save();
 }

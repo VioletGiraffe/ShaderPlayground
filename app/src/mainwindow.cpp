@@ -22,6 +22,8 @@ RESTORE_COMPILER_WARNINGS
 #define SETTINGS_KEY_UI_WINDOWGEOMETRY QStringLiteral("Ui/WindowGeometry")
 #define SETTINGS_KEY_UI_WINDOWSTATE QStringLiteral("Ui/WindowState")
 
+#define SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT QStringLiteral("Ui/LastOpenDocument")
+
 inline QString textFromResource(const char* resourcePath)
 {
 	QFile resourceFile(resourcePath);
@@ -73,14 +75,29 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	_shaderEditorWidget->setTextBackgroundColor(QColor(20, 20, 20, 130));
 
-	_shaderEditorWidget->setPlainText(textFromResource(currentFramework == ShaderFramework::ShaderToy ? ":/resources/default_fragment_shader_shadertoy.fsh" : ":/resources/default_fragment_shader_barebone.fsh"));
 	_shaderEditorWidget->setLineWrapMode(QPlainTextEdit::NoWrap);
 	_shaderEditorWidget->setTabStopWidth(4 * _shaderEditorWidget->fontMetrics().width(' '));
-	connect(_shaderEditorWidget, &QPlainTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
 
 	ui->mainSplitter->setStretchFactor(0, 1);
 	ui->mainSplitter->setStretchFactor(1, 0);
 	ui->mainSplitter->setSizes({0, 100});
+
+	// Loading the last open shader document
+	const QString lastOpenDocumentPath = CSettings().value(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT).toString();
+	if (!lastOpenDocumentPath.isEmpty())
+	{
+		_documentHandler.setDocumentPath(lastOpenDocumentPath);
+		if (!_documentHandler.loadContents())
+			QMessageBox::warning(this, "Error loading file", "Failed to load the last used file " % lastOpenDocumentPath);
+		else
+			_shaderEditorWidget->setPlainText(QString::fromUtf8(_documentHandler.contents()));
+	}
+	else
+		_shaderEditorWidget->setPlainText(textFromResource(currentFramework == ShaderFramework::ShaderToy ? ":/resources/default_fragment_shader_shadertoy.fsh" : ":/resources/default_fragment_shader_barebone.fsh"));
+
+	// This can only be done after the initial shader had been loaded
+	connect(_shaderEditorWidget, &QPlainTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
+
 
 	connect(ui->actionNew, &QAction::triggered, this, [this](){
 
@@ -99,15 +116,20 @@ MainWindow::MainWindow(QWidget *parent) :
 			return;
 		}
 
+		CSettings().setValue(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
 		_shaderEditorWidget->setPlainText(QString::fromUtf8(_documentHandler.contents()));
 	});
 
 	connect(ui->actionSave, &QAction::triggered, this, [this]() {
 		_documentHandler.save();
+		CSettings().setValue(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
+		setWindowModified(_documentHandler.hasUnsavedChanges());
 	});
 
 	connect(ui->actionSave_as, &QAction::triggered, this, [this]() {
 		_documentHandler.saveAs();
+		CSettings().setValue(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
+		setWindowModified(_documentHandler.hasUnsavedChanges());
 	});
 
 	connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);

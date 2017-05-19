@@ -29,7 +29,7 @@ public:
 	bool saveAs();
 
 private:
-	void promptToSaveChanges();
+	void handleUnsavedChanges();
 
 private:
 	CSaveableDocument _document;

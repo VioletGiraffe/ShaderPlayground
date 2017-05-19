@@ -56,7 +56,8 @@ HEADERS += \
 	src/shadersyntaxhighlighter.h \
 	src/shaderframework.h \
     src/document/csaveabledocument.h \
-    src/document/cdocumenthandler.h
+    src/document/cdocumenthandler.h \
+    src/settings.h
 
 SOURCES += \
 	src/main.cpp \
