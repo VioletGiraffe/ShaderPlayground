@@ -88,12 +88,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	{
 		_documentHandler.setDocumentPath(lastOpenDocumentPath);
 		if (!_documentHandler.loadContents())
+		{
 			QMessageBox::warning(this, "Error loading file", "Failed to load the last used file " % lastOpenDocumentPath);
+			loadSampleShaders();
+		}
 		else
 			_shaderEditorWidget->setPlainText(QString::fromUtf8(_documentHandler.contents()));
 	}
 	else
-		_shaderEditorWidget->setPlainText(textFromResource(currentFramework == ShaderFramework::ShaderToy ? ":/resources/default_fragment_shader_shadertoy.fsh" : ":/resources/default_fragment_shader_barebone.fsh"));
+		loadSampleShaders();
 
 	// This can only be done after the initial shader had been loaded
 	connect(_shaderEditorWidget, &QPlainTextEdit::textChanged, this, &MainWindow::updateFragmentShader);
@@ -166,6 +169,11 @@ void MainWindow::showEvent(QShowEvent* e)
 {
 	QMainWindow::showEvent(e);
 	updateFragmentShader();
+}
+
+void MainWindow::loadSampleShaders()
+{
+	_shaderEditorWidget->setPlainText(textFromResource(_shaderFramework.frameworkMode() == ShaderFramework::ShaderToy ? ":/resources/default_fragment_shader_shadertoy.fsh" : ":/resources/default_fragment_shader_barebone.fsh"));
 }
 
 void MainWindow::setShaderFramework(ShaderFramework::Framework framework)

@@ -19,6 +19,11 @@ void ShaderFramework::setFrameworkMode(Framework framework)
 	_frameworkMode = framework;
 }
 
+ShaderFramework::Framework ShaderFramework::frameworkMode() const
+{
+	return _frameworkMode;
+}
+
 QString ShaderFramework::processedShaderSource(const QString& sourceCode) const
 {
 	if (_frameworkMode == GLSL)

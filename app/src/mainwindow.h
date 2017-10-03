@@ -25,6 +25,8 @@ public:
 	void showEvent(QShowEvent* e) override;
 
 private:
+	void loadSampleShaders();
+
 	void setShaderFramework(ShaderFramework::Framework framework);
 	void updateFragmentShader();
 	void updateWindowTitle();

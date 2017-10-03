@@ -12,6 +12,7 @@ public:
 	enum Framework {GLSL, ShaderToy};
 
 	void setFrameworkMode(Framework framework);
+	Framework frameworkMode() const;
 
 	QString processedShaderSource(const QString& sourceCode) const;
 
