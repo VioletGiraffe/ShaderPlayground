@@ -21,5 +21,6 @@ float iTime = iGlobalTime;
 
 void main()
 {
+	pixelPosition.y = screenSize.y - pixelPosition.y;
 	mainImage(gl_FragColor, pixelPosition);
 }

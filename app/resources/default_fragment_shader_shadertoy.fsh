@@ -1,4 +1,5 @@
 // On/Off Spikes, fragment shader by movAX13h, oct 2014
+// https://www.shadertoy.com/view/XsBSRV
 
 #define HARD_SHADOW
 #define GLOW
