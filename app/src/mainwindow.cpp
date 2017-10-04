@@ -171,6 +171,23 @@ void MainWindow::showEvent(QShowEvent* e)
 	updateFragmentShader();
 }
 
+void MainWindow::closeEvent(QCloseEvent* e)
+{
+	if (_documentHandler.hasUnsavedChanges())
+	{
+		const auto result = QMessageBox::question(this, tr("Unsaved changes"), tr("There are unsaved changes in the current document. Do you want to save them?"), QMessageBox::Yes | QMessageBox::Cancel | QMessageBox::No, QMessageBox::Cancel);
+		if (result == QMessageBox::Yes)
+			_documentHandler.save();
+		else if (result == QMessageBox::Cancel)
+		{
+			e->ignore();
+			return;
+		}
+	}
+
+	QMainWindow::closeEvent(e);
+}
+
 void MainWindow::loadSampleShaders()
 {
 	_shaderEditorWidget->setPlainText(textFromResource(_shaderFramework.frameworkMode() == ShaderFramework::ShaderToy ? ":/resources/default_fragment_shader_shadertoy.fsh" : ":/resources/default_fragment_shader_barebone.fsh"));
@@ -197,3 +214,4 @@ void MainWindow::updateWindowTitle()
 	const QString documentName = !_documentHandler.documentName().isEmpty() ? _documentHandler.documentName() : "Untitled shader";
 	setWindowTitle(documentName % "[*] - " % QString::number((int)(1000.0f / _renderWidget->frameRenderingPeriod())) % " fps");
 }
+

@@ -23,6 +23,7 @@ public:
 	~MainWindow();
 
 	void showEvent(QShowEvent* e) override;
+	void closeEvent(QCloseEvent* e) override;
 
 private:
 	void loadSampleShaders();
