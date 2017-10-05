@@ -20,6 +20,7 @@ public:
 	explicit ShaderRenderWidget(QWidget *parent = 0);
 	~ShaderRenderWidget();
 
+	// Returns the compilation error message, if any
 	QString setFragmentShader(const QString& shaderSource);
 
 	float frameRenderingPeriod() const;

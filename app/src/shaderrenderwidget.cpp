@@ -1,4 +1,5 @@
 #include "shaderrenderwidget.h"
+#include "utility/on_scope_exit.hpp"
 
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
@@ -13,7 +14,7 @@ RESTORE_COMPILER_WARNINGS
 {\
 	const auto err = glGetError();	\
 	if (err != GL_NO_ERROR)	\
-		qDebug() << "GL error" << err << "at" << __FUNCTION__ << __LINE__;	\
+		qDebug() << "GL error" << err << "at" << __FUNCTION__ << __LINE__;\
 }
 
 ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) : QOpenGLWidget(parent)
@@ -24,15 +25,22 @@ ShaderRenderWidget::~ShaderRenderWidget()
 {
 }
 
+// Returns the compilation error message, if any
 QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 {
 	QMutexLocker locker(&_shaderProgramMutex);
 
+	const QString oldCode = _fragmentShader->sourceCode();
+
 	if (_program->isLinked())
 		_program->removeShader(_fragmentShader.get());
 
+	QString shaderCompilationError;
 	if (!_fragmentShader->compileSourceCode(shaderSource))
-		return _fragmentShader->log();
+	{
+		shaderCompilationError = _fragmentShader->log();
+		_fragmentShader->compileSourceCode(oldCode);
+	}
 
 	if (!_program->addShader(_fragmentShader.get()))
 		return "Failed to add fragment shader.\n\n" % _program->log();
@@ -40,7 +48,7 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 	if (!_program->link())
 		return "Failed to link the program.\n\n" % _program->log();
 
-	return QString();
+	return shaderCompilationError;
 }
 
 float ShaderRenderWidget::frameRenderingPeriod() const
