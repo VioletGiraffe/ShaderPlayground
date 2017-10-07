@@ -7,14 +7,6 @@ DISABLE_COMPILER_WARNINGS
 #include <QFileInfo>
 RESTORE_COMPILER_WARNINGS
 
-CSaveableDocument& CSaveableDocument::operator=(const CSaveableDocument& other)
-{
-	_filePath = other._filePath;
-	_hasUnsavedChanges = other._hasUnsavedChanges;
-
-	return *this;
-}
-
 void CSaveableDocument::setContents(const QByteArray& contents)
 {
 	_hasUnsavedChanges = _contents != contents;
@@ -35,6 +27,13 @@ void CSaveableDocument::setFilePath(const QString& filePath)
 {
 	_filePath = filePath;
 	_hasUnsavedChanges = !QFileInfo(filePath).exists();
+}
+
+void CSaveableDocument::newDocument(const QByteArray& contents)
+{
+	_filePath.clear();
+	_contents = contents;
+	_hasUnsavedChanges = !contents.isEmpty();
 }
 
 bool CSaveableDocument::load(const QString& filePath)

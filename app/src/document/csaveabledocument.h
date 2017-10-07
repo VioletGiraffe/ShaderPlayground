@@ -17,6 +17,7 @@ public:
 	bool hasUnsavedChanges() const;
 
 	void setFilePath(const QString& filePath);
+	void newDocument(const QByteArray& contents = QByteArray());
 	bool load(const QString& filePath);
 	bool load();
 	bool save();

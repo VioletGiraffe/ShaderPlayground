@@ -103,7 +103,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 	connect(ui->actionNew, &QAction::triggered, this, [this](){
-
+		loadSampleShaders();
 	});
 
 	connect(ui->actionOpen, &QAction::triggered, this, [this]() {
@@ -190,7 +190,9 @@ void MainWindow::closeEvent(QCloseEvent* e)
 
 void MainWindow::loadSampleShaders()
 {
-	_shaderEditorWidget->setPlainText(textFromResource(_shaderFramework.frameworkMode() == ShaderFramework::ShaderToy ? ":/resources/default_fragment_shader_shadertoy.fsh" : ":/resources/default_fragment_shader_barebone.fsh"));
+	const QString defaultShader = textFromResource(_shaderFramework.frameworkMode() == ShaderFramework::ShaderToy ? ":/resources/default_fragment_shader_shadertoy.fsh" : ":/resources/default_fragment_shader_barebone.fsh");
+	_documentHandler.newDocument(defaultShader.toUtf8());
+	_shaderEditorWidget->setPlainText(defaultShader);
 }
 
 void MainWindow::setShaderFramework(ShaderFramework::Framework framework)

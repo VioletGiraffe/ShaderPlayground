@@ -15,6 +15,13 @@ void CDocumentHandler::setDocumentPath(const QString& path)
 	_document.setFilePath(path);
 }
 
+// Creates a new document (empty, or with the optional supplied contents); gracefully handles unsaved changes
+void CDocumentHandler::newDocument(const QByteArray& contents)
+{
+	handleUnsavedChanges();
+	_document.newDocument(contents);
+}
+
 bool CDocumentHandler::open()
 {
 	const QString path = QFileDialog::getOpenFileName(_parent, "", QFileInfo(_document.filePath()).absolutePath());
