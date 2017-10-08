@@ -26,5 +26,6 @@ vec3 linearToSRGB(vec3 linear_rgb_color)
 void mainImage(out vec4 fragColor, in vec2 fragCoord)
 {
 	vec2 uv = fragCoord.xy / iResolution.xy;
-	fragColor = vec4(linearToSRGB(uv.x, uv.y, 0.5+0.5*sin(iTime)),1.0);
+	vec2 mousePos = iMouse.xy / iResolution.xy;
+	fragColor = vec4(linearToSRGB(uv.x * mousePos.x, uv.y * mousePos.y, 0.5+0.5*sin(iTime)),1.0);
 }
