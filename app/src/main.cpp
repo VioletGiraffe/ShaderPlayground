@@ -4,9 +4,11 @@
 
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
+#include <QDesktopWidget>
 #include <QSurfaceFormat>
 RESTORE_COMPILER_WARNINGS
 
+// These declaration tell the video driver to provide maximum graphics performance for this application
 extern "C"
 {
 	__declspec(dllexport) unsigned long NvOptimusEnablement = 1;
@@ -23,7 +25,7 @@ int main(int argc, char *argv[])
 
 	qDebug() << "Built with Qt version" << QT_VERSION_STR;
 
-	if(QString(qVersion()) != QT_VERSION_STR)
+	if(QStringLiteral(QT_VERSION_STR) != qVersion())
 	{
 		qDebug() << "Running with Qt version" << qVersion();
 		assert_unconditional_r("Current Qt version doesn't match the one application was built with.");
@@ -40,6 +42,7 @@ int main(int argc, char *argv[])
 	app.setApplicationName("Shader Playground");
 
 	MainWindow window;
+	window.resize(app.desktop()->size()/2);
 	window.show();
 
 	return app.exec();
