@@ -8,6 +8,7 @@
 #include "assert/advanced_assert.h"
 #include "settings/csettings.h"
 #include "aboutdialog/caboutdialog.h"
+#include "widgets/cpersistentwindow.h"
 
 DISABLE_COMPILER_WARNINGS
 #include "ui_mainwindow.h"
@@ -17,10 +18,9 @@ DISABLE_COMPILER_WARNINGS
 #include <QStringBuilder>
 RESTORE_COMPILER_WARNINGS
 
-// Keys for storing option in the settings
+// Keys for storing options in the settings
 #define SETTINGS_KEY_UI_SHADER_FRAMEWORK QStringLiteral("Ui/ShaderFamework")
-#define SETTINGS_KEY_UI_WINDOWGEOMETRY QStringLiteral("Ui/WindowGeometry")
-#define SETTINGS_KEY_UI_WINDOWSTATE QStringLiteral("Ui/WindowState")
+#define SETTINGS_KEY_UI_WINDOWGEOMETRY QStringLiteral("Ui/MainWindow")
 
 #define SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT QStringLiteral("Ui/LastOpenDocument")
 
@@ -38,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui(new Ui::MainWindow)
 {
 	ui->setupUi(this);
+
+	installEventFilter(new CPersistenceEnabler(SETTINGS_KEY_UI_WINDOWGEOMETRY, this));
 
 	auto overlayLayout = new COverlayLayout(ui->shaderWidgetsHost);
 	_renderWidget = new ShaderRenderWidget();
