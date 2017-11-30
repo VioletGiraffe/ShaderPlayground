@@ -68,25 +68,28 @@ LIBS += -L../bin/$${OUTPUT_DIR} -lcpputils -lqtutils
 HEADERS += \
 	src/mainwindow.h \
 	src/shaderrenderwidget.h \
-	src/codeeditor.h \
+	src/codeeditor/codeeditor.h \
 	src/shadersyntaxhighlighter.h \
 	src/shaderframework.h \
-    src/document/csaveabledocument.h \
-    src/document/cdocumenthandler.h \
-    src/settings.h
+	src/document/csaveabledocument.h \
+	src/document/cdocumenthandler.h \
+	src/settings.h \
+    src/codeeditor/ctextsearchwidget.h
 
 SOURCES += \
 	src/main.cpp \
 	src/mainwindow.cpp \
 	src/shaderrenderwidget.cpp \
-	src/codeeditor.cpp \
+	src/codeeditor/codeeditor.cpp \
 	src/shadersyntaxhighlighter.cpp \
 	src/shaderframework.cpp \
-    src/document/csaveabledocument.cpp \
-    src/document/cdocumenthandler.cpp
+	src/document/csaveabledocument.cpp \
+	src/document/cdocumenthandler.cpp \
+    src/codeeditor/ctextsearchwidget.cpp
 
 FORMS += \
-	src/mainwindow.ui
+	src/mainwindow.ui \
+    src/codeeditor/ctextsearchwidget.ui
 
 RESOURCES += \
 	shaders.qrc

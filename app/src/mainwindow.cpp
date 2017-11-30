@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 
 #include "shaderrenderwidget.h"
-#include "codeeditor.h"
+#include "codeeditor/codeeditor.h"
 #include "shadersyntaxhighlighter.h"
 
 #include "widgets/layouts/coverlaylayout.h"

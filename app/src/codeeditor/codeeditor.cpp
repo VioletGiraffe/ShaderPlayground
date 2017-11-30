@@ -21,15 +21,12 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 
 int CodeEditor::lineNumberAreaWidth()
 {
-	int digits = 1;
-	int max = qMax(1, blockCount());
-	while (max >= 10) {
-		max /= 10;
-		++digits;
-	}
+	int numDigits = 1;
+	for (int max = qMax(1, blockCount()); max >= 10; max /= 10)
+		++numDigits;
 
-	const int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
-	return space;
+	const int digitWidth = fontMetrics().width(QLatin1Char('9'));
+	return 10 + digitWidth * numDigits;
 }
 
 void CodeEditor::setTextBackgroundColor(const QColor& color)
@@ -75,18 +72,18 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
 void CodeEditor::highlightCurrentLine()
 {
-//	if (isReadOnly())
-//		return;
+	if (isReadOnly())
+		return;
 
-//	const QColor lineColor = QColor(255, 255, 255, 3);
+	const QColor lineColor = QColor(50, 50, 50, 127);
 
-//	QTextEdit::ExtraSelection selection;
-//	selection.format.setBackground(lineColor);
-//	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-//	selection.cursor = textCursor();
-//	selection.cursor.clearSelection();
+	QTextEdit::ExtraSelection selection;
+	selection.format.setBackground(lineColor);
+	selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+	selection.cursor = textCursor();
+	selection.cursor.clearSelection();
 
-//	setExtraSelections(QList<QTextEdit::ExtraSelection>{selection});
+	setExtraSelections(QList<QTextEdit::ExtraSelection>{selection});
 }
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
@@ -100,12 +97,13 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 	int top = (int)blockBoundingGeometry(block).translated(contentOffset()).top();
 	int bottom = top + (int)blockBoundingRect(block).height();
 
-	while (block.isValid() && top <= event->rect().bottom()) {
-		if (block.isVisible() && bottom >= event->rect().top()) {
+	while (block.isValid() && top <= event->rect().bottom())
+	{
+		if (block.isVisible() && bottom >= event->rect().top())
+		{
 			QString number = QString::number(blockNumber + 1);
 			painter.setPen(_lineNumberArea->palette().text().color());
-			painter.drawText(0, top, _lineNumberArea->width(), fontMetrics().height(),
-				Qt::AlignRight, number);
+			painter.drawText(0, top, _lineNumberArea->width(), fontMetrics().height(),Qt::AlignCenter, number);
 		}
 
 		block = block.next();
