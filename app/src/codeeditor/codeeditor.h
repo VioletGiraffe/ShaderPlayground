@@ -12,6 +12,19 @@ class QSize;
 class QWidget;
 
 class LineNumberArea;
+class CodeEditor;
+class CTextSearchWidget;
+
+class CodeEditorWithSearch : public QWidget
+{
+public:
+	explicit CodeEditorWithSearch(QWidget* parent = 0);
+	CodeEditor* editor() const;
+
+private:
+	CodeEditor* _editor = nullptr;
+	CTextSearchWidget* _searchWidget = nullptr;
+};
 
 
 class CodeEditor : public QPlainTextEdit

@@ -21,5 +21,9 @@ CTextSearchWidget::~CTextSearchWidget()
 void CTextSearchWidget::setShowReplaceUI(bool show)
 {
 	for (int col = 0; col < ui->gridLayout->columnCount(); ++col)
-		ui->gridLayout->itemAtPosition(1, col)->widget()->setVisible(show);
+	{
+		auto item = ui->gridLayout->itemAtPosition(1, col);
+		if (item)
+			item->widget()->setVisible(show);
+	}
 }

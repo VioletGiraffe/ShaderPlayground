@@ -45,8 +45,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	_renderWidget = new ShaderRenderWidget();
 	overlayLayout->addWidget(_renderWidget);
 
-	_shaderEditorWidget = new CodeEditor();
-	overlayLayout->addWidget(_shaderEditorWidget);
+	auto shaderEditor = new CodeEditorWithSearch;
+	_shaderEditorWidget = shaderEditor->editor();
+	overlayLayout->addWidget(shaderEditor);
 	new ShaderSyntaxHighlighter(_shaderEditorWidget->document());
 
 	ui->shaderWidgetsHost->setLayout(overlayLayout);

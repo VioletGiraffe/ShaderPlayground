@@ -1,9 +1,32 @@
 #include "codeeditor.h"
+#include "ctextsearchwidget.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QPainter>
 #include <QTextBlock>
+#include <QVBoxLayout>
 RESTORE_COMPILER_WARNINGS
+
+
+CodeEditorWithSearch::CodeEditorWithSearch(QWidget* parent) : QWidget(parent)
+{
+	_editor = new CodeEditor;
+	_searchWidget = new CTextSearchWidget;
+	_searchWidget->setVisible(false);
+
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->setSpacing(0);
+	layout->addWidget(_editor);
+	layout->addWidget(_searchWidget);
+
+	setLayout(layout);
+}
+
+CodeEditor* CodeEditorWithSearch::editor() const
+{
+	return _editor;
+}
 
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
