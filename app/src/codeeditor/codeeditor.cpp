@@ -1,8 +1,8 @@
 #include "codeeditor.h"
-#include "ctextsearchwidget.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QPainter>
+#include <QShortcut>
 #include <QTextBlock>
 #include <QVBoxLayout>
 RESTORE_COMPILER_WARNINGS
@@ -12,7 +12,8 @@ CodeEditorWithSearch::CodeEditorWithSearch(QWidget* parent) : QWidget(parent)
 {
 	_editor = new CodeEditor;
 	_searchWidget = new CTextSearchWidget;
-	_searchWidget->setVisible(false);
+	_searchWidget->setCallbackReceiver(this);
+	_searchWidget->hide();
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -21,6 +22,12 @@ CodeEditorWithSearch::CodeEditorWithSearch(QWidget* parent) : QWidget(parent)
 	layout->addWidget(_searchWidget);
 
 	setLayout(layout);
+
+	auto shortcutShowSearchWidget = new QShortcut(QKeySequence("Ctrl+F"), this);
+	connect(shortcutShowSearchWidget, &QShortcut::activated, this, [this]() {
+		_searchWidget->setShowReplaceUI(false);
+		_searchWidget->show();
+	});
 }
 
 CodeEditor* CodeEditorWithSearch::editor() const
@@ -28,6 +35,35 @@ CodeEditor* CodeEditorWithSearch::editor() const
 	return _editor;
 }
 
+
+void CodeEditorWithSearch::findPrevious(const QString& what, const TextSearchOptions options)
+{
+	QTextDocument::FindFlags flags = QTextDocument::FindBackward;
+	if (options.caseSensitive) flags |= QTextDocument::FindCaseSensitively;
+	_editor->find(what, flags);
+}
+
+void CodeEditorWithSearch::findNext(const QString& what, const TextSearchOptions options)
+{
+	QTextDocument::FindFlags flags;
+	if (options.caseSensitive) flags |= QTextDocument::FindCaseSensitively;
+	_editor->find(what, flags);
+}
+
+void CodeEditorWithSearch::findAll(const QString& what, const TextSearchOptions options)
+{
+
+}
+
+void CodeEditorWithSearch::replaceNext(const QString& what, const QString& with, const TextSearchOptions options)
+{
+
+}
+
+void CodeEditorWithSearch::replaceAll(const QString& what, const QString& with, const TextSearchOptions options)
+{
+
+}
 
 CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 {

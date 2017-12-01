@@ -1,6 +1,7 @@
 #pragma once
 
 #include "compiler/compiler_warnings_control.h"
+#include "ctextsearchwidget.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QPlainTextEdit>
@@ -15,11 +16,18 @@ class LineNumberArea;
 class CodeEditor;
 class CTextSearchWidget;
 
-class CodeEditorWithSearch : public QWidget
+class CodeEditorWithSearch : public QWidget, public TextSearchCallbacks
 {
 public:
-	explicit CodeEditorWithSearch(QWidget* parent = 0);
+	explicit CodeEditorWithSearch(QWidget* parent = nullptr);
 	CodeEditor* editor() const;
+
+	void findPrevious(const QString& what, const TextSearchOptions options = TextSearchOptions()) override;
+	void findNext(const QString& what, const TextSearchOptions options = TextSearchOptions()) override;
+	void findAll(const QString& what, const TextSearchOptions options = TextSearchOptions()) override;
+
+	void replaceNext(const QString& what, const QString& with, const TextSearchOptions options = TextSearchOptions()) override;
+	void replaceAll(const QString& what, const QString& with, const TextSearchOptions options = TextSearchOptions()) override;
 
 private:
 	CodeEditor* _editor = nullptr;
@@ -30,7 +38,7 @@ private:
 class CodeEditor : public QPlainTextEdit
 {
 public:
-	CodeEditor(QWidget *parent = 0);
+	CodeEditor(QWidget *parent = nullptr);
 
 	void lineNumberAreaPaintEvent(QPaintEvent *event);
 	int lineNumberAreaWidth();
