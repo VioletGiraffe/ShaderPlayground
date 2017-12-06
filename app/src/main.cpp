@@ -1,6 +1,7 @@
 #include "shaderrenderwidget.h"
 #include "mainwindow.h"
 #include "assert/advanced_assert.h"
+#include "ui/ui-inspector/cuiinspector.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
@@ -42,8 +43,11 @@ int main(int argc, char *argv[])
 	app.setApplicationName("Shader Playground");
 
 	MainWindow window;
-	window.resize(app.desktop()->size()/2);
 	window.show();
+
+	CUiInspector uiInspector;
+	uiInspector.show();
+	uiInspector.raise();
 
 	return app.exec();
 }
