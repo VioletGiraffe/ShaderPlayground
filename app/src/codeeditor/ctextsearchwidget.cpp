@@ -4,6 +4,8 @@ DISABLE_COMPILER_WARNINGS
 #include "ui_ctextsearchwidget.h"
 
 #include <QDebug>
+#include <QPaintEvent>
+#include <QPainter>
 RESTORE_COMPILER_WARNINGS
 
 CTextSearchWidget::CTextSearchWidget(QWidget *parent) :
@@ -11,11 +13,6 @@ CTextSearchWidget::CTextSearchWidget(QWidget *parent) :
 	ui(new Ui::CTextSearchWidget)
 {
 	ui->setupUi(this);
-
-	auto modifiedPalette = palette();
-	modifiedPalette.setColor(QPalette::Active, QPalette::Base, QColor(255, 0, 255, 255));
-	modifiedPalette.setColor(QPalette::Inactive, QPalette::Base, QColor(255, 0, 255, 255));
-	setPalette(modifiedPalette);
 
 	setShowReplaceUI(false);
 
@@ -60,7 +57,7 @@ void CTextSearchWidget::setShowReplaceUI(bool show)
 		if (item)
 			item->widget()->setVisible(show);
 	}
-}
+} 
 
 TextSearchOptions CTextSearchWidget::currentOptions() const
 {

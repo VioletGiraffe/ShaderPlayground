@@ -45,9 +45,5 @@ int main(int argc, char *argv[])
 	MainWindow window;
 	window.show();
 
-	CUiInspector uiInspector;
-	uiInspector.show();
-	uiInspector.raise();
-
 	return app.exec();
 }
