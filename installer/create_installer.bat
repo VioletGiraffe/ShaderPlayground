@@ -8,24 +8,25 @@ SETLOCAL
 
 RMDIR /S /Q binaries\
 
+call "%VS_TOOLS_DIR%..\..\VC\vcvarsall.bat" amd64
+
 pushd ..\
-%QTDIR32%\bin\qmake.exe -tp vc -r
+%QTDIR64%\bin\qmake.exe -tp vc -r
 popd
 
-call "%VS_TOOLS_DIR%VsDevCmd.bat" x86
 msbuild ..\ShaderPlayground.sln /t:Build /p:Configuration=Release;PlatformToolset=v140
 
-xcopy /R /Y ..\bin\release\*.exe binaries\
-xcopy /R /Y "3rdparty binaries"\Win\32\* binaries\
+xcopy /R /Y ..\bin\release\x64\*.exe binaries\
+xcopy /R /Y "3rdparty binaries"\Win\64\* binaries\
 
 SETLOCAL
-SET PATH=%QTDIR32%\bin\
-FOR %%p IN (binaries\*.exe) DO %QTDIR32%\bin\windeployqt.exe --dir binaries\Qt --force --release --no-compiler-runtime --no-angle --no-translations %%p
+SET PATH=%QTDIR64%\bin\
+FOR %%p IN (binaries\*.exe) DO %QTDIR64%\bin\windeployqt.exe --dir binaries\Qt --force --release --no-compiler-runtime --no-angle --no-translations %%p
 ENDLOCAL
 
-xcopy /R /Y %SystemRoot%\SysWOW64\msvcp140.dll binaries\msvcr\
-xcopy /R /Y %SystemRoot%\SysWOW64\vcruntime140.dll binaries\msvcr\
-xcopy /R /Y "%programfiles(x86)%\Windows Kits\10\Redist\ucrt\DLLs\x86\*" binaries\msvcr\
+xcopy /R /Y %SystemRoot%\System32\msvcp140.dll binaries\msvcr\
+xcopy /R /Y %SystemRoot%\System32\vcruntime140.dll binaries\msvcr\
+xcopy /R /Y "%programfiles(x86)%\Windows Kits\10\Redist\ucrt\DLLs\x64\*" binaries\msvcr\
 
 del binaries\Qt\opengl*.*
 
