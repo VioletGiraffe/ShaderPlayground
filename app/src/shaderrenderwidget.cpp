@@ -10,6 +10,8 @@ DISABLE_COMPILER_WARNINGS
 #include <QVector3D>
 RESTORE_COMPILER_WARNINGS
 
+#include <regex>
+
 #define LogGlError \
 {\
 	const auto err = glGetError();	\
@@ -127,11 +129,15 @@ void ShaderRenderWidget::paintGL()
 	LogGlError;
 	_program->setUniformValue("matrix", pmvMatrix);
 	LogGlError;
-	_program->setUniformValue("screenSize", size());
+	_program->setUniformValue("iResolution", size());
 	LogGlError;
-	auto mouseStatus = QVector3D(mapFromGlobal(QCursor::pos()));
-	if (QApplication::mouseButtons() & Qt::LeftButton)
-		mouseStatus.setZ(1.0f);
+	auto mouseStatus = QVector4D(QVector2D(mapFromGlobal(QCursor::pos())), -1.0f, -1.0f);
+	if (QApplication::mouseButtons() & (Qt::LeftButton | Qt::RightButton))
+	{
+		mouseStatus.setZ(mouseStatus.x());
+		mouseStatus.setW(mouseStatus.y());
+	}
+
 	_program->setUniformValue("mousePosition", mouseStatus);
 	LogGlError;
 
@@ -140,9 +146,28 @@ void ShaderRenderWidget::paintGL()
 	_program->setUniformValue("totalTime", (float)_totalRunTime.elapsed());
 	LogGlError;
 
+	_program->setUniformValue("iFrame", _frameCounter++);
+	LogGlError;
+
+	_program->setUniformValue("iDate", QVector4D((float)_date.year(), (float)_date.month(), (float)_date.day(), (float)(time(nullptr) % (24 * 3600))));
+	LogGlError;
+
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 	LogGlError;
 
 	_program->disableAttributeArray("vertexPosition");
 	LogGlError;
+}
+
+QString adjustLineNumbersInTheLog(const QString& log)
+{
+	static const std::wregex line_number_regex(L"\\(([0-9]+)\\) :");
+	std::wcmatch m;
+	std::regex_search((const wchar_t*)log.utf16(), m, line_number_regex);
+	if (m.size() == 2)
+	{
+		const auto lineNumber = QString::fromUtf16((const char16_t*)m[1].first, m[1].second - m[1].first).toInt();
+	}
+
+	return log;
 }

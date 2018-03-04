@@ -4,23 +4,26 @@ precision highp float;
 #endif
 
 varying highp vec2 pixelPosition;
-uniform mediump vec2 screenSize;
-uniform mediump vec3 mousePosition;
+uniform mediump vec2 iResolution;
+uniform mediump vec4 mousePosition;
 
 uniform highp float frameTime;
 uniform mediump float totalTime;
 
+uniform int iFrame;
+
+uniform mediump vec4 iDate;
+
 // ShaderToy compatibility variables
-vec2 iResolution = screenSize;
-vec3 iMouse = vec3(mousePosition.x, screenSize.y - mousePosition.y, mousePosition.z);
+vec4 iMouse = vec4(mousePosition.x, iResolution.y - mousePosition.y, mousePosition.z, mousePosition.w >= 0.0 ? iResolution.y - mousePosition.y : mousePosition.w);
 float iGlobalTime = totalTime / 1000.0;
-float iTimeDelta = frameTime;
+#define iTimeDelta frameTime;
 #define iTime iGlobalTime
 
 %1%
 
 void main()
 {
-	pixelPosition.y = screenSize.y - pixelPosition.y;
+	pixelPosition.y = iResolution.y - pixelPosition.y;
 	mainImage(gl_FragColor, pixelPosition);
 }

@@ -4,6 +4,7 @@
 #include "compiler/compiler_warnings_control.h"
 
 DISABLE_COMPILER_WARNINGS
+#include <QDate>
 #include <QMutex>
 #include <QOpenGLFunctions>
 #include <QOpenGLShader>
@@ -33,6 +34,9 @@ protected:
 	void paintGL() override;
 
 private:
+	QString adjustLineNumbersInTheLog(const QString& log);
+
+private:
 	QMutex _shaderProgramMutex;
 
 	QTimer timer;
@@ -41,4 +45,7 @@ private:
 	std::unique_ptr<QOpenGLShader> _fragmentShader;
 
 	float _frameRenderingPeriod = 0.0f;
+	int _frameCounter = 0;
+
+	const QDate _date = QDate::currentDate();
 };
