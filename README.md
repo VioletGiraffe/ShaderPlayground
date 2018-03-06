@@ -2,7 +2,7 @@
 
 A tool for live-editing fragment shaders. Mostly compatible with [Shadertoy.com](https://www.shadertoy.com/).
 
-![Screenshot](https://i.imgur.com/z6unxLZ.png)
+![Screenshot](https://i.imgur.com/L8xce5W.png)
 
 ### Known Issues
 For the list of known issues, refer to the project issues on Github, sort by the "bug" label. Or just use <a href="https://github.com/VioletGiraffe/ShaderPlayground/labels/bug">this link</a>.
