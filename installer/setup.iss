@@ -21,6 +21,8 @@ Compression=lzma2/ultra64
 LZMAUseSeparateProcess=yes
 LZMABlockSize=8192
 
+ArchitecturesInstallIn64BitMode=x64
+
 [Files]
 
 ;App binaries
