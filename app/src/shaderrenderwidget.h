@@ -34,7 +34,7 @@ protected:
 	void paintGL() override;
 
 private:
-	QString adjustLineNumbersInTheLog(const QString& log);
+	QString adjustLineNumbersInTheLog(const QString& log) const;
 
 private:
 	QMutex _shaderProgramMutex;

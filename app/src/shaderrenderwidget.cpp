@@ -1,5 +1,5 @@
 #include "shaderrenderwidget.h"
-#include "utility/on_scope_exit.hpp"
+#include "regex/regex_helpers.hpp"
 
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
@@ -9,8 +9,6 @@ DISABLE_COMPILER_WARNINGS
 #include <QStringBuilder>
 #include <QVector3D>
 RESTORE_COMPILER_WARNINGS
-
-#include <regex>
 
 #define LogGlError \
 {\
@@ -40,15 +38,14 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 	QString shaderCompilationError;
 	if (!_fragmentShader->compileSourceCode(shaderSource))
 	{
-		shaderCompilationError = _fragmentShader->log();
+		shaderCompilationError = adjustLineNumbersInTheLog(_fragmentShader->log());
 		_fragmentShader->compileSourceCode(oldCode);
 	}
 
 	if (!_program->addShader(_fragmentShader.get()))
-		return "Failed to add fragment shader.\n\n" % _program->log();
-
-	if (!_program->link())
-		return "Failed to link the program.\n\n" % _program->log();
+		return "Failed to add fragment shader.\n\n" % adjustLineNumbersInTheLog(_program->log());
+	else if (!_program->link())
+		return "Failed to link the program.\n\n" % adjustLineNumbersInTheLog(_program->log());
 
 	return shaderCompilationError;
 }
@@ -159,15 +156,14 @@ void ShaderRenderWidget::paintGL()
 	LogGlError;
 }
 
-QString adjustLineNumbersInTheLog(const QString& log)
+QString ShaderRenderWidget::adjustLineNumbersInTheLog(const QString& log) const
 {
 	static const std::wregex line_number_regex(L"\\(([0-9]+)\\) :");
-	std::wcmatch m;
-	std::regex_search((const wchar_t*)log.utf16(), m, line_number_regex);
-	if (m.size() == 2)
-	{
-		const auto lineNumber = QString::fromUtf16((const char16_t*)m[1].first, m[1].second - m[1].first).toInt();
-	}
+	auto wlog = log.toStdWString();
+	regex_helpers::regex_replace(wlog.begin(), wlog.end(), line_number_regex, [](const std::match_results<typename std::wstring::iterator>& match) {
+		const auto lineNumber = QString::fromStdWString(match.str(1)).toInt();
+		return QString::number(lineNumber - 10).toStdWString();
+	});
 
-	return log;
+	return QString::fromStdWString(wlog);
 }
