@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	installEventFilter(new CPersistenceEnabler(SETTINGS_KEY_UI_WINDOWGEOMETRY, this));
 
 	auto overlayLayout = new COverlayLayout(ui->shaderWidgetsHost);
+	overlayLayout->setObjectName("Code / graphics view overlay layout");
 	_renderWidget = new ShaderRenderWidget();
 	overlayLayout->addWidget(_renderWidget);
 
