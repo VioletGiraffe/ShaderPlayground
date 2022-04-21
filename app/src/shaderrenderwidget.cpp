@@ -3,22 +3,32 @@
 
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
+#include <QDate>
 #include <QDebug>
 #include <QMatrix4x4>
 #include <QMouseEvent>
-#include <QStringBuilder>
+#include <QOpenGLShader>
+#include <QOpenGLShaderProgram>
+#include <QTimer>
 #include <QVector3D>
 RESTORE_COMPILER_WARNINGS
 
 #define LogGlError \
 {\
-	const auto err = glGetError();	\
-	if (err != GL_NO_ERROR)	\
+	const auto err = this->glGetError(); \
+	if (err != GL_NO_ERROR) \
 		qDebug() << "GL error" << err << "at" << __FUNCTION__ << __LINE__;\
 }
 
-ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) : QOpenGLWidget(parent)
+ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) :
+	QOpenGLWidget(parent)
 {
+	const auto date = QDate::currentDate();
+	_day = static_cast<float>(date.day());
+	_month = static_cast<float>(date.month());
+	_year = static_cast<float>(date.year());
+
+	_timer = new QTimer(this);
 }
 
 ShaderRenderWidget::~ShaderRenderWidget()
@@ -28,7 +38,9 @@ ShaderRenderWidget::~ShaderRenderWidget()
 // Returns the compilation error message, if any
 QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 {
-	QMutexLocker locker(&_shaderProgramMutex);
+#ifndef _WIN32
+	std::lock_guard locker{ _shaderProgramMutex };
+#endif
 
 	const QString oldCode = _fragmentShader->sourceCode();
 
@@ -43,9 +55,9 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 	}
 
 	if (!_program->addShader(_fragmentShader.get()))
-		return "Failed to add fragment shader.\n\n" % adjustLineNumbersInTheLog(_program->log());
+		return shaderCompilationError + "\nFailed to add fragment shader.\n\n" + adjustLineNumbersInTheLog(_program->log());
 	else if (!_program->link())
-		return "Failed to link the program.\n\n" % adjustLineNumbersInTheLog(_program->log());
+		return shaderCompilationError + "\nFailed to link the program.\n\n" + adjustLineNumbersInTheLog(_program->log());
 
 	return shaderCompilationError;
 }
@@ -73,11 +85,11 @@ void ShaderRenderWidget::initializeGL()
 		qDebug() << "Failed to add vertex shader:\n" << _program->log();
 
 	qDebug() << '\n'
-		<< (const char*)glGetString(GL_RENDERER) << '\n'
-		<< (const char*)glGetString(GL_VERSION);
+		<< (const char*)this->glGetString(GL_RENDERER) << '\n'
+		<< (const char*)this->glGetString(GL_VERSION);
 
-	connect(&timer, &QTimer::timeout, this, [this](){update();});
-	timer.start(10);
+	connect(_timer, &QTimer::timeout, this, (void (ShaderRenderWidget::*)()) &ShaderRenderWidget::update);
+	_timer->start(10);
 }
 
 void ShaderRenderWidget::resizeGL(int w, int h)
@@ -91,7 +103,7 @@ void ShaderRenderWidget::resizeGL(int w, int h)
 void ShaderRenderWidget::paintGL()
 {
 #ifndef _WIN32
-	QMutexLocker locker(&_shaderProgramMutex);
+	std::lock_guard locker{ _shaderProgramMutex };
 #endif
 
 	_frameRenderingPeriod = _timeSinceLastFrame.elapsed<std::chrono::microseconds>() / 1000.0f;
@@ -99,7 +111,7 @@ void ShaderRenderWidget::paintGL()
 
 	if (!_program || !_program->isLinked())
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		this->glClear(GL_COLOR_BUFFER_BIT);
 		return;
 	}
 
@@ -146,10 +158,10 @@ void ShaderRenderWidget::paintGL()
 	_program->setUniformValue("iFrame", _frameCounter++);
 	LogGlError;
 
-	_program->setUniformValue("iDate", QVector4D((float)_date.year(), (float)_date.month(), (float)_date.day(), (float)(time(nullptr) % (24 * 3600))));
+	_program->setUniformValue("iDate", QVector4D(_year, _month, _day, (float)(time(nullptr) % (24 * 3600))));
 	LogGlError;
 
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	this->glDrawArrays(GL_TRIANGLES, 0, 6);
 	LogGlError;
 
 	_program->disableAttributeArray("vertexPosition");

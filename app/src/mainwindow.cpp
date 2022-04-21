@@ -9,6 +9,7 @@
 #include "settings/csettings.h"
 #include "aboutdialog/caboutdialog.h"
 #include "widgets/cpersistentwindow.h"
+#include "widgets/widgetutils.h"
 
 DISABLE_COMPILER_WARNINGS
 #include "ui_mainwindow.h"
@@ -122,6 +123,18 @@ MainWindow::MainWindow(QWidget *parent) :
 		_documentHandler.saveAs();
 		CSettings().setValue(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
 		setWindowModified(_documentHandler.hasUnsavedChanges());
+	});
+
+	connect(ui->actionShow_actual_shader_code, &QAction::triggered, this, [this](){
+		QDialog dlg{ this };
+		QVBoxLayout l;
+		QTextEdit viewer;
+		viewer.setReadOnly(true);
+		viewer.setPlainText(_shaderFramework.processedShaderSource(_shaderEditorWidget->toPlainText()));
+		l.addWidget(&viewer);
+		dlg.setLayout(&l);
+		WidgetUtils::centerWidgetInParent(&dlg, 0.7);
+		dlg.exec();
 	});
 
 	connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);

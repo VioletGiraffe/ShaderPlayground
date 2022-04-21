@@ -5,6 +5,7 @@
 
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
+#include <QDebug>
 #include <QDesktopWidget>
 #include <QSurfaceFormat>
 RESTORE_COMPILER_WARNINGS
@@ -12,7 +13,7 @@ RESTORE_COMPILER_WARNINGS
 // These declaration tell the video driver to provide maximum graphics performance for this application
 extern "C"
 {
-	__declspec(dllexport) unsigned long NvOptimusEnablement = 1;
+	__declspec(dllexport) uint32_t NvOptimusEnablement = 1;
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 

@@ -66,6 +66,8 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="separator"/>
+    <addaction name="actionShow_actual_shader_code"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menu_Settings">
@@ -168,6 +170,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionShow_actual_shader_code">
+   <property name="text">
+    <string>Show actual shader &amp;code...</string>
    </property>
   </action>
  </widget>

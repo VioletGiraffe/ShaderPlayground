@@ -24,6 +24,5 @@ float iGlobalTime = totalTime / 1000.0;
 
 void main()
 {
-	pixelPosition.y = iResolution.y - pixelPosition.y;
-	mainImage(gl_FragColor, pixelPosition);
+	mainImage(gl_FragColor, vec2(pixelPosition.x, iResolution.y - pixelPosition.y));
 }

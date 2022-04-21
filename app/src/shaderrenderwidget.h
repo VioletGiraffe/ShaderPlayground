@@ -4,22 +4,22 @@
 #include "compiler/compiler_warnings_control.h"
 
 DISABLE_COMPILER_WARNINGS
-#include <QDate>
-#include <QMutex>
 #include <QOpenGLFunctions>
-#include <QOpenGLShader>
-#include <QOpenGLShaderProgram>
 #include <QOpenGLWidget>
-#include <QTimer>
 RESTORE_COMPILER_WARNINGS
 
 #include <memory>
+#include <mutex>
 
-class ShaderRenderWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class QOpenGLShader;
+class QOpenGLShaderProgram;
+class QTimer;
+
+class ShaderRenderWidget final : public QOpenGLWidget, protected QOpenGLFunctions
 {
 public:
-	explicit ShaderRenderWidget(QWidget *parent = 0);
-	~ShaderRenderWidget();
+	explicit ShaderRenderWidget(QWidget *parent = nullptr);
+	~ShaderRenderWidget() override; // Do not remove, required because of forward-declaring unique_ptr type
 
 	// Returns the compilation error message, if any
 	QString setFragmentShader(const QString& shaderSource);
@@ -37,15 +37,16 @@ private:
 	QString adjustLineNumbersInTheLog(const QString& log) const;
 
 private:
-	QMutex _shaderProgramMutex;
+	std::mutex _shaderProgramMutex;
 
-	QTimer timer;
 	CTimeElapsed _timeSinceLastFrame, _totalRunTime;
 	std::unique_ptr<QOpenGLShaderProgram> _program;
 	std::unique_ptr<QOpenGLShader> _fragmentShader;
 
+	QTimer* _timer = nullptr;
+
 	float _frameRenderingPeriod = 0.0f;
 	int _frameCounter = 0;
 
-	const QDate _date = QDate::currentDate();
+	float _day, _month, _year;
 };
