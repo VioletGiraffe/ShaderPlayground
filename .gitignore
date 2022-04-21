@@ -3,6 +3,7 @@
 
 installer/windows/FileCommander.exe
 installer/windows/binaries/
+.qtc_clangd/
 
 # User-specific files
 *.suo

@@ -2,7 +2,7 @@ QT = core gui widgets opengl
 
 TARGET = ShaderPlayground
 TEMPLATE = app
-CONFIG += c++14
+CONFIG += c++2a
 
 mac* | linux*{
 	CONFIG(release, debug|release):CONFIG += Release
