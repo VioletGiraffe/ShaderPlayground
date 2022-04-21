@@ -12,19 +12,19 @@ public:
 	CSaveableDocument& operator=(const CSaveableDocument& other);
 
 	void setContents(const QByteArray& contents);
-	QByteArray contents() const;
+	[[nodiscard]] QByteArray contents() const;
 
-	bool hasUnsavedChanges() const;
+	[[nodiscard]] bool hasUnsavedChanges() const;
 
 	void setFilePath(const QString& filePath);
 	void newDocument(const QByteArray& contents = QByteArray());
-	bool load(const QString& filePath);
-	bool load();
-	bool save();
-	bool saveAs(const QString& fileName);
+	[[nodiscard]] bool load(const QString& filePath);
+	[[nodiscard]] bool load();
+	[[nodiscard]] bool save();
+	[[nodiscard]] bool saveAs(const QString& fileName);
 
-	QString filePath() const;
-	QString name() const;
+	[[nodiscard]] QString filePath() const;
+	[[nodiscard]] QString name() const;
 
 private:
 	QByteArray _contents;

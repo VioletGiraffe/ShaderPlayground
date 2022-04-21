@@ -26,7 +26,7 @@ bool CSaveableDocument::hasUnsavedChanges() const
 void CSaveableDocument::setFilePath(const QString& filePath)
 {
 	_filePath = filePath;
-	_hasUnsavedChanges = !QFileInfo(filePath).exists();
+	assert(QFile::exists(filePath));
 }
 
 void CSaveableDocument::newDocument(const QByteArray& contents)

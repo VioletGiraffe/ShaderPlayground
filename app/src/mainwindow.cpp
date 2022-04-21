@@ -110,22 +110,7 @@ MainWindow::MainWindow(QWidget *parent) :
 		loadSampleShaders();
 	});
 
-	connect(ui->actionOpen, &QAction::triggered, this, [this]() {
-		if (!_documentHandler.open())
-		{
-			QMessageBox::warning(this, "Failed to open file", "Failed to open the selected file.");
-			return;
-		}
-
-		if (!_documentHandler.loadContents())
-		{
-			QMessageBox::warning(this, "Failed to load file", "Failed to load the file " % _documentHandler.documentName());
-			return;
-		}
-
-		CSettings().setValue(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
-		_shaderEditorWidget->setPlainText(QString::fromUtf8(_documentHandler.contents()));
-	});
+	connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::onOpenDocument);
 
 	connect(ui->actionSave, &QAction::triggered, this, [this]() {
 		_documentHandler.save();
@@ -172,6 +157,7 @@ MainWindow::~MainWindow()
 void MainWindow::showEvent(QShowEvent* e)
 {
 	QMainWindow::showEvent(e);
+	// TODO: is this correct?
 	updateFragmentShader();
 }
 
@@ -192,6 +178,31 @@ void MainWindow::closeEvent(QCloseEvent* e)
 	QMainWindow::closeEvent(e);
 }
 
+void MainWindow::onOpenDocument()
+{
+	if (_documentHandler.hasUnsavedChanges())
+	{
+		if (QMessageBox::question(this,
+			"Save changes?",
+			"There are unsaved changes, do you want to save them before opening a new file?")
+			== QMessageBox::Yes)
+		{
+			_documentHandler.saveAs();
+		}
+	}
+
+	_documentHandler.open();
+
+	if (!_documentHandler.loadContents())
+	{
+		QMessageBox::critical(this, "Failed to load file", "Failed to load the file " + _documentHandler.documentName());
+		return;
+	}
+
+	CSettings().setValue(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
+	_shaderEditorWidget->setPlainText(QString::fromUtf8(_documentHandler.contents()));
+}
+
 void MainWindow::loadSampleShaders()
 {
 	const QString defaultShader = textFromResource(_shaderFramework.frameworkMode() == ShaderFramework::ShaderToy ? ":/resources/default_fragment_shader_shadertoy.fsh" : ":/resources/default_fragment_shader_barebone.fsh");
@@ -206,6 +217,7 @@ void MainWindow::setShaderFramework(ShaderFramework::Framework framework)
 	updateFragmentShader();
 }
 
+// TODO: why is this called in showEvent?
 void MainWindow::updateFragmentShader()
 {
 	const QString log = _renderWidget->setFragmentShader(_shaderFramework.processedShaderSource(_shaderEditorWidget->toPlainText()));

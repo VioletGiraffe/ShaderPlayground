@@ -26,6 +26,9 @@ public:
 	void closeEvent(QCloseEvent* e) override;
 
 private:
+	// Action handlers
+	void onOpenDocument();
+
 	void loadSampleShaders();
 
 	void setShaderFramework(ShaderFramework::Framework framework);

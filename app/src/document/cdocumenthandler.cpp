@@ -22,14 +22,11 @@ void CDocumentHandler::newDocument(const QByteArray& contents)
 	_document.newDocument(contents);
 }
 
-bool CDocumentHandler::open()
+void CDocumentHandler::open()
 {
 	const QString path = QFileDialog::getOpenFileName(_parent, "", QFileInfo(_document.filePath()).absolutePath());
-	if (path.isEmpty())
-		return false;
-
-	_document.setFilePath(path);
-	return true;
+	if (!path.isEmpty())
+		_document.setFilePath(path);
 }
 
 bool CDocumentHandler::loadContents()
