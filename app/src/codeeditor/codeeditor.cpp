@@ -84,7 +84,7 @@ int CodeEditor::lineNumberAreaWidth()
 	for (int max = qMax(1, blockCount()); max >= 10; max /= 10)
 		++numDigits;
 
-	const int digitWidth = fontMetrics().width(QLatin1Char('9'));
+	const int digitWidth = fontMetrics().horizontalAdvance('9');
 	return 10 + digitWidth * numDigits;
 }
 
@@ -94,7 +94,7 @@ void CodeEditor::setTextBackgroundColor(const QColor& color)
 	applyTextBackgroundColor();
 
 	auto lineNumberArea = _lineNumberArea->palette();
-	lineNumberArea.setColor(QPalette::Background, color);
+	lineNumberArea.setColor(QPalette::Window, color);
 	_lineNumberArea->setPalette(lineNumberArea);
 }
 
@@ -148,7 +148,7 @@ void CodeEditor::highlightCurrentLine()
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 {
 	QPainter painter(_lineNumberArea);
-	painter.fillRect(event->rect(), _lineNumberArea->palette().background());
+	painter.fillRect(event->rect(), _lineNumberArea->palette().window());
 
 
 	QTextBlock block = firstVisibleBlock();

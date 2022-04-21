@@ -80,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	_shaderEditorWidget->setTextBackgroundColor(QColor(20, 20, 20, 130));
 
 	_shaderEditorWidget->setLineWrapMode(QPlainTextEdit::NoWrap);
-	_shaderEditorWidget->setTabStopWidth(4 * _shaderEditorWidget->fontMetrics().width(' '));
+	_shaderEditorWidget->setTabStopDistance(static_cast<qreal>(4 * _shaderEditorWidget->fontMetrics().horizontalAdvance(' ')));
 
 	ui->mainSplitter->setStretchFactor(0, 1);
 	ui->mainSplitter->setStretchFactor(1, 0);
