@@ -11,11 +11,7 @@ float iTimeDelta: time since the previous frame in seconds
 
 vec3 linearToSRGB(float r, float g, float b)
 {
-	return vec3(
-		pow(r, 0.454545), // 1/2.2
-		pow(g, 0.454545),
-		pow(b, 0.454545)
-	);
+	return vec3(pow(r, 0.45454545), pow(g, 0.45454545), pow(b, 0.45454545)); // 1/2.2
 }
 
 vec3 linearToSRGB(vec3 linear_rgb_color)

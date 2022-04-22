@@ -34,9 +34,6 @@ protected:
 	void paintGL() override;
 
 private:
-	QString adjustLineNumbersInTheLog(const QString& log) const;
-
-private:
 	std::mutex _shaderProgramMutex;
 
 	CTimeElapsed _timeSinceLastFrame, _totalRunTime;

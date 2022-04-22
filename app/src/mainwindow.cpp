@@ -89,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	// Loading the last open shader document
 	const QString lastOpenDocumentPath = CSettings().value(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT).toString();
-	if (!lastOpenDocumentPath.isEmpty())
+	if (!lastOpenDocumentPath.isEmpty() && QFile::exists(lastOpenDocumentPath))
 	{
 		_documentHandler.setDocumentPath(lastOpenDocumentPath);
 		if (!_documentHandler.loadContents())
@@ -233,8 +233,9 @@ void MainWindow::setShaderFramework(ShaderFramework::Framework framework)
 // TODO: why is this called in showEvent?
 void MainWindow::updateFragmentShader()
 {
-	const QString log = _renderWidget->setFragmentShader(_shaderFramework.processedShaderSource(_shaderEditorWidget->toPlainText()));
-	ui->output->setPlainText(log);
+	const QString& log = _renderWidget->setFragmentShader(_shaderFramework.processedShaderSource(_shaderEditorWidget->toPlainText()));
+	const QString adjustedLog = _shaderFramework.adjustLineNumbersInTheLog(log);
+	ui->output->setPlainText(adjustedLog);
 
 	_documentHandler.setContents(_shaderEditorWidget->toPlainText().toUtf8());
 	setWindowModified(_documentHandler.hasUnsavedChanges());

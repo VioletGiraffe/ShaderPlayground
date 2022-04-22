@@ -1,5 +1,4 @@
 #include "shaderrenderwidget.h"
-#include "regex/regex_helpers.hpp"
 
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
@@ -50,14 +49,14 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 	QString shaderCompilationError;
 	if (!_fragmentShader->compileSourceCode(shaderSource))
 	{
-		shaderCompilationError = adjustLineNumbersInTheLog(_fragmentShader->log());
+		shaderCompilationError = _fragmentShader->log();
 		_fragmentShader->compileSourceCode(oldCode);
 	}
 
 	if (!_program->addShader(_fragmentShader.get()))
-		return shaderCompilationError + "\nFailed to add fragment shader.\n\n" + adjustLineNumbersInTheLog(_program->log());
+		return shaderCompilationError + "\nFailed to add fragment shader.\n\n" + _program->log();
 	else if (!_program->link())
-		return shaderCompilationError + "\nFailed to link the program.\n\n" + adjustLineNumbersInTheLog(_program->log());
+		return shaderCompilationError + "\nFailed to link the program.\n\n" + _program->log();
 
 	return shaderCompilationError;
 }
@@ -119,7 +118,7 @@ void ShaderRenderWidget::paintGL()
 		qDebug() << "Failed to bind the program\n:" << _program->log();
 
 	const float w = (float)width(), h = (float)height();
-	const GLfloat vertices[2 * 3 * 3] = {
+	const GLfloat vertices[2 * 3 * 3] {
 		0.0f, 0.0f, 0.0f,
 		0.0f, h, 0.0f,
 		w, h, 0.0f,
@@ -166,16 +165,4 @@ void ShaderRenderWidget::paintGL()
 
 	_program->disableAttributeArray("vertexPosition");
 	LogGlError;
-}
-
-QString ShaderRenderWidget::adjustLineNumbersInTheLog(const QString& log) const
-{
-	static const std::wregex line_number_regex(L"\\(([0-9]+)\\) :");
-	auto wlog = log.toStdWString();
-	regex_helpers::regex_replace(wlog.begin(), wlog.end(), line_number_regex, [](const std::match_results<typename std::wstring::iterator>& match) {
-		const auto lineNumber = QString::fromStdWString(match.str(1)).toInt();
-		return QString::number(lineNumber - 10).toStdWString();
-	});
-
-	return QString::fromStdWString(wlog);
 }
