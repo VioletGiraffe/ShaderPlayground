@@ -19,7 +19,7 @@ extern "C"
 
 int main(int argc, char *argv[])
 {
-	qSetMessagePattern("%{function} (%{file}:%{line}): %{message}");
+	qSetMessagePattern("%{function}: %{message}");
 
 	AdvancedAssert::setLoggingFunc([](const char* message) {
 		qDebug() << message;

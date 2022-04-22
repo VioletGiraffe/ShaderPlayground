@@ -160,6 +160,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(&_fpsUpdaterTimer, &QTimer::timeout, this, &MainWindow::updateWindowTitle);
 	_fpsUpdaterTimer.start(100);
+
+	updateWindowTitle();
 }
 
 MainWindow::~MainWindow()
@@ -244,6 +246,9 @@ void MainWindow::updateFragmentShader()
 void MainWindow::updateWindowTitle()
 {
 	const QString documentName = !_documentHandler.documentName().isEmpty() ? _documentHandler.documentName() : "Untitled shader";
-	setWindowTitle(documentName % "[*] - " % QString::number((int)(1000.0f / _renderWidget->frameRenderingPeriod())) % " fps");
+	setWindowTitle(documentName %
+		"[*] - " % _renderWidget->gpuName() % ", FPS: " %
+		QString::number((int)(1000.0f / _renderWidget->frameRenderingPeriod()))
+	);
 }
 

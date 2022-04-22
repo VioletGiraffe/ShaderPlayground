@@ -66,6 +66,11 @@ float ShaderRenderWidget::frameRenderingPeriod() const
 	return _frameRenderingPeriod;
 }
 
+QString ShaderRenderWidget::gpuName() const
+{
+	return _gpuName;
+}
+
 void ShaderRenderWidget::showEvent(QShowEvent *event)
 {
 	QOpenGLWidget::showEvent(event);
@@ -83,8 +88,10 @@ void ShaderRenderWidget::initializeGL()
 	if (!_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/resources/default_vertex_shader.vsh"))
 		qDebug() << "Failed to add vertex shader:\n" << _program->log();
 
+	_gpuName = (const char*)this->glGetString(GL_RENDERER);
+
 	qDebug() << '\n'
-		<< (const char*)this->glGetString(GL_RENDERER) << '\n'
+		<< _gpuName << '\n'
 		<< (const char*)this->glGetString(GL_VERSION);
 
 	connect(_timer, &QTimer::timeout, this, (void (ShaderRenderWidget::*)()) &ShaderRenderWidget::update);

@@ -22,9 +22,10 @@ public:
 	~ShaderRenderWidget() override; // Do not remove, required because of forward-declaring unique_ptr type
 
 	// Returns the compilation error message, if any
-	QString setFragmentShader(const QString& shaderSource);
+	[[nodiscard]] QString setFragmentShader(const QString& shaderSource);
 
-	float frameRenderingPeriod() const;
+	[[nodiscard]] float frameRenderingPeriod() const;
+	[[nodiscard]] QString gpuName() const;
 
 protected:
 	void showEvent(QShowEvent *event) override;
@@ -35,6 +36,8 @@ protected:
 
 private:
 	std::mutex _shaderProgramMutex;
+
+	QString _gpuName;
 
 	CTimeElapsed _timeSinceLastFrame, _totalRunTime;
 	std::unique_ptr<QOpenGLShaderProgram> _program;
