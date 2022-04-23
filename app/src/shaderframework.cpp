@@ -2,12 +2,11 @@
 
 #include "assert/advanced_assert.h"
 #include "regex/regex_helpers.hpp"
+#include "string/stringutils.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QFile>
 RESTORE_COMPILER_WARNINGS
-
-#include <algorithm>
 
 static QString textFromResource(const char* resourcePath)
 {
@@ -23,7 +22,7 @@ ShaderFramework::ShaderFramework() :
 {
 	const QString placeholder = "%1%";
 	const auto placeholderPosition = _shaderTemplate.indexOf(placeholder);
-	const auto linesBeforePlaceholder = std::count(_shaderTemplate.begin(), _shaderTemplate.begin() + placeholderPosition, '\n');
+	const auto linesBeforePlaceholder = lineNumberForPosition(_shaderTemplate, placeholderPosition);
 	_lineNumberOffset = (decltype(_lineNumberOffset))linesBeforePlaceholder + 1 /* why is this required? */;
 }
 

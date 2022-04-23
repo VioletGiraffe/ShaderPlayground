@@ -16,7 +16,7 @@ class LineNumberArea;
 class CodeEditor;
 class CTextSearchWidget;
 
-class CodeEditorWithSearch : public QWidget, public TextSearchCallbacks
+class CodeEditorWithSearch final : public QWidget, public TextSearchCallbacks
 {
 public:
 	explicit CodeEditorWithSearch(QWidget* parent = nullptr);
@@ -35,7 +35,7 @@ private:
 };
 
 
-class CodeEditor : public QPlainTextEdit
+class CodeEditor final : public QPlainTextEdit
 {
 public:
 	CodeEditor(QWidget *parent = nullptr);
@@ -47,6 +47,7 @@ public:
 
 protected:
 	void resizeEvent(QResizeEvent *event) override;
+	void keyPressEvent(QKeyEvent* event) override;
 
 private:
 	void updateLineNumberAreaWidth(int newBlockCount);
@@ -61,7 +62,7 @@ private:
 };
 
 
-class LineNumberArea : public QWidget
+class LineNumberArea final : public QWidget
 {
 public:
 	inline LineNumberArea(CodeEditor *editor) : QWidget(editor), codeEditor(editor) {

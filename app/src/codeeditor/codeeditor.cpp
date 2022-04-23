@@ -1,11 +1,16 @@
 #include "codeeditor.h"
 
+#include "string/stringutils.h"
+#include "assert/advanced_assert.h"
+
 DISABLE_COMPILER_WARNINGS
 #include <QPainter>
 #include <QShortcut>
 #include <QTextBlock>
 #include <QVBoxLayout>
 RESTORE_COMPILER_WARNINGS
+
+#include <algorithm>
 
 
 CodeEditorWithSearch::CodeEditorWithSearch(QWidget* parent) : QWidget(parent)
@@ -127,6 +132,35 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
 	QRect cr = contentsRect();
 	_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+}
+
+void CodeEditor::keyPressEvent(QKeyEvent* event)
+{
+	if (const auto key = event->key(); key == Qt::Key_Enter || key == Qt::Key_Return)
+	{
+		auto cursor = textCursor();
+		const int pos = cursor.position();
+
+		const QString text = toPlainText();
+		
+		const int lineStart = text.lastIndexOf('\n', std::max(pos - 1, 0)) + 1;
+		assert_debug_only(pos >= lineStart);
+		//QString lineBeforeCursor = text.mid(lineStart, pos - lineStart);
+		const int tabulationEnd = std::find_if(text.begin() + lineStart, text.begin() + pos, [](const QChar c) {
+			return c != ' ' && c != '\t';
+		}) - text.begin();
+
+		QPlainTextEdit::keyPressEvent(event);
+
+		if (tabulationEnd > 0)
+		{
+			cursor = textCursor();
+			assert_debug_only(tabulationEnd >= lineStart);
+			cursor.insertText(text.mid(lineStart, tabulationEnd - lineStart));
+		}
+	}
+	else
+		QPlainTextEdit::keyPressEvent(event);
 }
 
 void CodeEditor::highlightCurrentLine()
