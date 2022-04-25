@@ -2,6 +2,7 @@
 
 #include "string/stringutils.h"
 #include "assert/advanced_assert.h"
+#include "math/math.hpp"
 
 DISABLE_COMPILER_WARNINGS
 #include <QPainter>
@@ -85,9 +86,7 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 
 int CodeEditor::lineNumberAreaWidth()
 {
-	int numDigits = 1;
-	for (int max = qMax(1, blockCount()); max >= 10; max /= 10)
-		++numDigits;
+	int numDigits = Math::ceil<int>(log10f((float)std::max(1, document()->lineCount())));
 
 	const int digitWidth = fontMetrics().horizontalAdvance('9');
 	return 10 + digitWidth * numDigits;

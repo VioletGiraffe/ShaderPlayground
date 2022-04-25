@@ -88,6 +88,8 @@
      <string>&amp;View</string>
     </property>
     <addaction name="actionToggle_fullscreen_mode"/>
+    <addaction name="action_Word_wrap"/>
+    <addaction name="action_Color_scheme"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -175,6 +177,19 @@
   <action name="actionShow_actual_shader_code">
    <property name="text">
     <string>Show actual shader &amp;code...</string>
+   </property>
+  </action>
+  <action name="action_Word_wrap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Word wrap</string>
+   </property>
+  </action>
+  <action name="action_Color_scheme">
+   <property name="text">
+    <string>&amp;Color scheme...</string>
    </property>
   </action>
  </widget>

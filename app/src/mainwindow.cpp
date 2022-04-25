@@ -3,6 +3,7 @@
 #include "shaderrenderwidget.h"
 #include "codeeditor/codeeditor.h"
 #include "shadersyntaxhighlighter.h"
+#include "colorschemeeditor.h"
 
 #include "widgets/layouts/coverlaylayout.h"
 #include "assert/advanced_assert.h"
@@ -19,11 +20,14 @@ DISABLE_COMPILER_WARNINGS
 #include <QStringBuilder>
 RESTORE_COMPILER_WARNINGS
 
-// Keys for storing options in the settings
-#define SETTINGS_KEY_UI_SHADER_FRAMEWORK QStringLiteral("Ui/ShaderFamework")
-#define SETTINGS_KEY_UI_WINDOWGEOMETRY QStringLiteral("Ui/MainWindow")
+namespace Settings {
+	static constexpr const char SHADER_FRAMEWORK[] = "Ui/ShaderFamework";
+	static constexpr const char WRAP_TEXT[] = "Ui/WrapText";
+	static constexpr const char COLOR_SCHEME[] = "Ui/ColorScheme";
 
-#define SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT QStringLiteral("Ui/LastOpenDocument")
+	static constexpr const char WINDOWGEOMETRY[] = "Ui/MainWindow";
+	static constexpr const char LAST_OPEN_DOCUMENT[] = "Ui/LastOpenDocument";
+}
 
 inline QString textFromResource(const char* resourcePath)
 {
@@ -40,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	installEventFilter(new CPersistenceEnabler(SETTINGS_KEY_UI_WINDOWGEOMETRY, this));
+	installEventFilter(new CPersistenceEnabler(Settings::WINDOWGEOMETRY, this));
 
 	auto overlayLayout = new COverlayLayout(ui->shaderWidgetsHost);
 	overlayLayout->setObjectName("Code / graphics view overlay layout");
@@ -50,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	auto shaderEditor = new CodeEditorWithSearch;
 	_shaderEditorWidget = shaderEditor->editor();
 	overlayLayout->addWidget(shaderEditor);
-	new ShaderSyntaxHighlighter(_shaderEditorWidget->document());
+	_syntaxHighlighter = new ShaderSyntaxHighlighter(ColorScheme::fromYaml(ColorSchemeEditor::colorScheme()), _shaderEditorWidget->document());
 
 	ui->shaderWidgetsHost->setLayout(overlayLayout);
 
@@ -58,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	shaderFrameworkModeMenuGroup->addAction(ui->actionBarebone_GLSL);
 	shaderFrameworkModeMenuGroup->addAction(ui->actionShadertoy_compatibility);
 
-	const auto currentFramework = (ShaderFramework::Framework)CSettings().value(SETTINGS_KEY_UI_SHADER_FRAMEWORK, ShaderFramework::ShaderToy).toInt();
+	const auto currentFramework = (ShaderFramework::Framework)CSettings().value(Settings::SHADER_FRAMEWORK, ShaderFramework::ShaderToy).toInt();
 	_shaderFramework.setFrameworkMode(currentFramework);
 	if (currentFramework == ShaderFramework::GLSL)
 		ui->actionBarebone_GLSL->setChecked(true);
@@ -88,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->mainSplitter->setSizes({0, 100});
 
 	// Loading the last open shader document
-	const QString lastOpenDocumentPath = CSettings().value(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT).toString();
+	const QString lastOpenDocumentPath = CSettings().value(Settings::LAST_OPEN_DOCUMENT).toString();
 	if (!lastOpenDocumentPath.isEmpty() && QFile::exists(lastOpenDocumentPath))
 	{
 		_documentHandler.setDocumentPath(lastOpenDocumentPath);
@@ -115,13 +119,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	connect(ui->actionSave, &QAction::triggered, this, [this]() {
 		_documentHandler.save();
-		CSettings().setValue(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
+		CSettings().setValue(Settings::LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
 		setWindowModified(_documentHandler.hasUnsavedChanges());
 	});
 
 	connect(ui->actionSave_as, &QAction::triggered, this, [this]() {
 		_documentHandler.saveAs();
-		CSettings().setValue(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
+		CSettings().setValue(Settings::LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
 		setWindowModified(_documentHandler.hasUnsavedChanges());
 	});
 
@@ -144,6 +148,12 @@ MainWindow::MainWindow(QWidget *parent) :
 			showFullScreen();
 		else
 			showNormal();
+	});
+
+	connect(ui->action_Color_scheme, &QAction::triggered, this, [this] {
+		ColorSchemeEditor editor(this);
+		if (editor.exec() == QDialog::Accepted)
+			_syntaxHighlighter->setColorScheme(ColorScheme::fromYaml(ColorSchemeEditor::colorScheme()));
 	});
 
 	connect(ui->actionBarebone_GLSL, &QAction::triggered, this, [this]() {
@@ -214,7 +224,7 @@ void MainWindow::onOpenDocument()
 		return;
 	}
 
-	CSettings().setValue(SETTINGS_KEY_UI_LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
+	CSettings().setValue(Settings::LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
 	_shaderEditorWidget->setPlainText(QString::fromUtf8(_documentHandler.contents()));
 }
 
@@ -227,7 +237,7 @@ void MainWindow::loadSampleShaders()
 
 void MainWindow::setShaderFramework(ShaderFramework::Framework framework)
 {
-	CSettings().setValue(SETTINGS_KEY_UI_SHADER_FRAMEWORK, framework);
+	CSettings().setValue(Settings::SHADER_FRAMEWORK, framework);
 	_shaderFramework.setFrameworkMode(framework);
 	updateFragmentShader();
 }

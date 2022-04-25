@@ -11,6 +11,7 @@ RESTORE_COMPILER_WARNINGS
 
 class CodeEditor;
 class ShaderRenderWidget;
+class ShaderSyntaxHighlighter;
 
 namespace Ui {
 class MainWindow;
@@ -40,6 +41,7 @@ private:
 
 	CodeEditor* _shaderEditorWidget;
 	ShaderRenderWidget* _renderWidget;
+	ShaderSyntaxHighlighter* _syntaxHighlighter;
 
 	ShaderFramework _shaderFramework;
 	CDocumentHandler _documentHandler;

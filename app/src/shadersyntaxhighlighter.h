@@ -1,6 +1,7 @@
 #pragma once
 
 #include "compiler/compiler_warnings_control.h"
+#include "codeeditor/colorscheme.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QSyntaxHighlighter>
@@ -8,16 +9,20 @@ RESTORE_COMPILER_WARNINGS
 
 #include <vector>
 
-class ShaderSyntaxHighlighter: public QSyntaxHighlighter
+class ShaderSyntaxHighlighter final: public QSyntaxHighlighter
 {
 public:
-	ShaderSyntaxHighlighter(QTextDocument *parent = 0);
+	ShaderSyntaxHighlighter(ColorScheme colors, QTextDocument *parent = 0);
+	void setColorScheme(ColorScheme colors);
 
 protected:
 	void highlightBlock(const QString &text) override;
 
 private:
-	void addPatternFromList(QStringList &list, QTextCharFormat &format);
+	void addPatternFromList(const QStringList &list, const QTextCharFormat &format);
+
+private:
+	ColorScheme _colorScheme;
 
 	struct HighlightingRule {
 		QRegExp pattern;
@@ -28,11 +33,4 @@ private:
 
 	QRegExp _commentStartExpression;
 	QRegExp _commentEndExpression;
-
-	QTextCharFormat _statementFormat;
-	QTextCharFormat _commentFormat;
-	QTextCharFormat _preprocessorFormat;
-	QTextCharFormat _numberFormat;
-	QTextCharFormat _typesFormat;
-	QTextCharFormat _swizzleFormat;
 };

@@ -66,6 +66,8 @@ INCLUDEPATH += \
 LIBS += -L../bin/$${OUTPUT_DIR} -lcpputils -lqtutils
 
 HEADERS += \
+	src/codeeditor/colorscheme.h \
+	src/colorschemeeditor.h \
 	src/mainwindow.h \
 	src/shaderrenderwidget.h \
 	src/codeeditor/codeeditor.h \
@@ -77,6 +79,8 @@ HEADERS += \
     src/codeeditor/ctextsearchwidget.h
 
 SOURCES += \
+	src/codeeditor/colorscheme.cpp \
+	src/colorschemeeditor.cpp \
 	src/main.cpp \
 	src/mainwindow.cpp \
 	src/shaderrenderwidget.cpp \
@@ -88,10 +92,9 @@ SOURCES += \
     src/codeeditor/ctextsearchwidget.cpp
 
 FORMS += \
+	src/colorschemeeditor.ui \
 	src/mainwindow.ui \
     src/codeeditor/ctextsearchwidget.ui
 
 RESOURCES += \
 	shaders.qrc
-
-DISTFILES +=
