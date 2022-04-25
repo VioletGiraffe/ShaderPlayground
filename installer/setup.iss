@@ -8,11 +8,11 @@ AllowNoIcons=true
 OutputDir=.
 OutputBaseFilename=ShaderPlayground
 UsePreviousAppDir=yes
+WizardStyle=modern
 
 ;SetupIconFile=..\app\resources\FTS_icon.ico
 UninstallDisplayIcon={app}\ShaderPlayground.exe
 
-WizardImageBackColor=clWhite
 ShowTasksTreeLines=yes
 
 SolidCompression=true
@@ -26,13 +26,13 @@ ArchitecturesInstallIn64BitMode=x64
 [Files]
 
 ;App binaries
-Source: binaries/*; DestDir: {app}; Flags: ignoreversion
+Source: binaries/64/*; DestDir: {app}; Flags: ignoreversion
 
 ;Qt binaries
-Source: binaries/Qt/*; DestDir: {app}; Flags: ignoreversion recursesubdirs
+Source: binaries/64/Qt/*; DestDir: {app}; Flags: ignoreversion recursesubdirs
 
 ;MSVC binaries
-Source: binaries/msvcr/*; DestDir: {app}; Flags: ignoreversion
+Source: binaries/64/msvcr/*; DestDir: {app}; Flags: ignoreversion
 
 [Icons]
 Name: {group}\Shader Playground; Filename: {app}\ShaderPlayground.exe;
@@ -45,4 +45,4 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:Ad
 Filename: {app}\ShaderPlayground.exe; Description: {cm:LaunchProgram,Shader Playground}; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-Type: dirifempty; Name: "{app}"
+Type: filesandordirs; Name: "{app}"
