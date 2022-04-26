@@ -147,9 +147,11 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 		const int lineStart = text.lastIndexOf('\n', std::max(pos - 1, 0)) + 1;
 		assert_debug_only(pos >= lineStart);
 		//QString lineBeforeCursor = text.mid(lineStart, pos - lineStart);
-		const int tabulationEnd = std::find_if(text.begin() + lineStart, text.begin() + pos, [](const QChar c) {
-			return c != ' ' && c != '\t';
-		}) - text.begin();
+		const int tabulationEnd = static_cast<int>(
+			std::find_if(text.begin() + lineStart, text.begin() + pos, [](const QChar c) {
+				return c != ' ' && c != '\t';
+			}) - text.begin()
+		);
 
 		QPlainTextEdit::keyPressEvent(event);
 

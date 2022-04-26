@@ -74,16 +74,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	editorFont.setPointSize(10);
 
 	_shaderEditorWidget->setFont(editorFont);
+	// "color: white" only really affects the line numbers, since everything else is colored with the ColorScheme
 	_shaderEditorWidget->setStyleSheet("color: white; selection-background-color: rgba(200, 200, 200, 150); selection-color: rgb(30, 30, 30);");
 	_shaderEditorWidget->setFrameStyle(QFrame::NoFrame);
 	auto editorPalette = _shaderEditorWidget->palette();
 	editorPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);
 	editorPalette.setColor(QPalette::Inactive, QPalette::Base, Qt::transparent);
 	_shaderEditorWidget->setPalette(editorPalette);
-
 	_shaderEditorWidget->setTextBackgroundColor(QColor(20, 20, 20, 130));
 
-	_shaderEditorWidget->setLineWrapMode(QPlainTextEdit::NoWrap);
 	_shaderEditorWidget->setTabStopDistance(static_cast<qreal>(4 * _shaderEditorWidget->fontMetrics().horizontalAdvance(' ')));
 
 	ui->mainSplitter->setStretchFactor(0, 1);
