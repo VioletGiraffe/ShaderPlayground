@@ -5,6 +5,7 @@
 #include "math/math.hpp"
 
 DISABLE_COMPILER_WARNINGS
+#include <QDebug>
 #include <QPainter>
 #include <QShortcut>
 #include <QTextBlock>
@@ -129,7 +130,8 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 {
 	QPlainTextEdit::resizeEvent(e);
 
-	QRect cr = contentsRect();
+	const QRect cr = contentsRect();
+	qDebug() << cr.width();
 	_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 

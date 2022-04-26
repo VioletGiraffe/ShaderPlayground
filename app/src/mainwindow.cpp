@@ -23,7 +23,6 @@ RESTORE_COMPILER_WARNINGS
 namespace Settings {
 	static constexpr const char SHADER_FRAMEWORK[] = "Ui/ShaderFamework";
 	static constexpr const char WRAP_TEXT[] = "Ui/WrapText";
-	static constexpr const char COLOR_SCHEME[] = "Ui/ColorScheme";
 
 	static constexpr const char WINDOWGEOMETRY[] = "Ui/MainWindow";
 	static constexpr const char LAST_OPEN_DOCUMENT[] = "Ui/LastOpenDocument";
@@ -149,6 +148,13 @@ MainWindow::MainWindow(QWidget *parent) :
 		else
 			showNormal();
 	});
+
+	connect(ui->action_Word_wrap, &QAction::toggled, this, [this] (bool wrap) {
+		_shaderEditorWidget->setLineWrapMode(wrap ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
+		QSettings{}.setValue(Settings::WRAP_TEXT, wrap);
+	});
+
+	ui->action_Word_wrap->setChecked(QSettings{}.value(Settings::WRAP_TEXT, true).toBool());
 
 	connect(ui->action_Color_scheme, &QAction::triggered, this, [this] {
 		ColorSchemeEditor editor(this);
