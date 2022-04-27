@@ -68,6 +68,7 @@ LIBS += -L../bin/$${OUTPUT_DIR} -lcpputils -lqtutils
 HEADERS += \
 	src/codeeditor/colorscheme.h \
 	src/colorschemeeditor.h \
+	src/errorlogsyntaxhighlighter.h \
 	src/mainwindow.h \
 	src/shaderrenderwidget.h \
 	src/codeeditor/codeeditor.h \
@@ -81,6 +82,7 @@ HEADERS += \
 SOURCES += \
 	src/codeeditor/colorscheme.cpp \
 	src/colorschemeeditor.cpp \
+	src/errorlogsyntaxhighlighter.cpp \
 	src/main.cpp \
 	src/mainwindow.cpp \
 	src/shaderrenderwidget.cpp \

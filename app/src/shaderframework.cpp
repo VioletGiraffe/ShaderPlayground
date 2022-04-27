@@ -51,12 +51,25 @@ QString ShaderFramework::adjustLineNumbersInTheLog(const QString& log) const
 	if (_frameworkMode != ShaderToy)
 		return log;
 
-	static const std::wregex line_number_regex(L"\\(([0-9]+)\\) :");
+	static const std::wregex line_number_regex[]{
+		std::wregex{L"[0-9]+:([0-9]+):"}, // Intel HD3000
+		std::wregex{L"\\(([0-9]+)\\) :"} // Nvidia 640M
+	};
+
+
 	auto wlog = log.toStdWString();
-	wlog = regex_helpers::regex_replace(wlog, line_number_regex, [this](const std::match_results<typename std::wstring::const_iterator>& match) {
-		const auto lineNumber = std::stoul(match.str(1));
-		return L'(' + std::to_wstring(lineNumber - _lineNumberOffset) + L')';
-	});
+	bool matchFound = false;
+	for (const auto& regex : line_number_regex)
+	{
+		wlog = regex_helpers::regex_replace(wlog, regex, [this, &matchFound, &wlog](const std::match_results<typename std::wstring::const_iterator>& match) {
+			matchFound = true;
+			const auto lineNumber = std::stoul(match.str(1));
+			return regex_helpers::replace_match(wlog, match, 1, std::to_wstring(lineNumber - _lineNumberOffset));
+		});
+
+		if (matchFound)
+			break;
+	}
 
 	return QString::fromStdWString(wlog);
 }

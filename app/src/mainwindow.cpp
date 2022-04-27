@@ -3,6 +3,7 @@
 #include "shaderrenderwidget.h"
 #include "codeeditor/codeeditor.h"
 #include "shadersyntaxhighlighter.h"
+#include "errorlogsyntaxhighlighter.h"
 #include "colorschemeeditor.h"
 
 #include "widgets/layouts/coverlaylayout.h"
@@ -37,7 +38,7 @@ inline QString textFromResource(const char* resourcePath)
 	return resourceFile.readAll();
 }
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
@@ -53,7 +54,9 @@ MainWindow::MainWindow(QWidget *parent) :
 	auto shaderEditor = new CodeEditorWithSearch;
 	_shaderEditorWidget = shaderEditor->editor();
 	overlayLayout->addWidget(shaderEditor);
+
 	_syntaxHighlighter = new ShaderSyntaxHighlighter(ColorScheme::fromYaml(ColorSchemeEditor::colorScheme()), _shaderEditorWidget->document());
+	new ErrorLogSyntaxHighlighter(ui->output->document());
 
 	ui->shaderWidgetsHost->setLayout(overlayLayout);
 
@@ -68,12 +71,25 @@ MainWindow::MainWindow(QWidget *parent) :
 	else
 		ui->actionShadertoy_compatibility->setChecked(true);
 
-	QFont editorFont;
-	editorFont.setFamily("Consolas");
-	editorFont.setFixedPitch(true);
-	editorFont.setPointSize(10);
+	{
+		// Editor font
+		QFont editorFont;
+		editorFont.setFamily("Consolas");
+		editorFont.setFixedPitch(true);
+		editorFont.setPointSize(10);
 
-	_shaderEditorWidget->setFont(editorFont);
+		_shaderEditorWidget->setFont(editorFont);
+	}
+
+	{
+		// Output font
+		QFont f;
+		f.setFamily("Consolas");
+		f.setFixedPitch(true);
+		f.setPointSize(11);
+		ui->output->setFont(f);
+	}
+
 	// "color: white" only really affects the line numbers, since everything else is colored with the ColorScheme
 	_shaderEditorWidget->setStyleSheet("color: white; selection-background-color: rgba(200, 200, 200, 150); selection-color: rgb(30, 30, 30);");
 	_shaderEditorWidget->setFrameStyle(QFrame::NoFrame);
@@ -83,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	_shaderEditorWidget->setPalette(editorPalette);
 	_shaderEditorWidget->setTextBackgroundColor(QColor(20, 20, 20, 130));
 
-	_shaderEditorWidget->setTabStopDistance(static_cast<qreal>(4 * _shaderEditorWidget->fontMetrics().horizontalAdvance(' ')));
+	_shaderEditorWidget->setTabStopDistance(static_cast<qreal>(4ull * _shaderEditorWidget->fontMetrics().horizontalAdvance(' ')));
 
 	ui->mainSplitter->setStretchFactor(0, 1);
 	ui->mainSplitter->setStretchFactor(1, 0);
