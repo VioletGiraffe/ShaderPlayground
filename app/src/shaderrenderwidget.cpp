@@ -12,6 +12,8 @@ DISABLE_COMPILER_WARNINGS
 #include <QVector3D>
 RESTORE_COMPILER_WARNINGS
 
+static constexpr int TargetFPS = 60;
+
 #define LogGlError \
 {\
 	const auto err = this->glGetError(); \
@@ -95,7 +97,7 @@ void ShaderRenderWidget::initializeGL()
 		<< (const char*)this->glGetString(GL_VERSION);
 
 	connect(_timer, &QTimer::timeout, this, (void (ShaderRenderWidget::*)()) &ShaderRenderWidget::update);
-	_timer->start(10);
+	_timer->start(1000 / TargetFPS);
 }
 
 void ShaderRenderWidget::resizeGL(int w, int h)
