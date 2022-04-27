@@ -137,35 +137,70 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
 void CodeEditor::keyPressEvent(QKeyEvent* event)
 {
-	if (const auto key = event->key(); key == Qt::Key_Enter || key == Qt::Key_Return)
-	{
+	static constexpr auto isTabulation = [](QChar c) {
+		return c == '\t' || c == ' ';
+	};
+
+	const auto tabulationForCurrentLine = [this](const QString& text) -> std::pair<int /* startPos */, QStringRef> {
 		auto cursor = textCursor();
 		const int pos = cursor.position();
 
-		const QString text = toPlainText();
-
-		const bool addNewTab = pos > 0 && text[pos - 1] == '{';
-		
 		const int lineStart = text.lastIndexOf('\n', std::max(pos - 1, 0)) + 1;
 		assert_debug_only(pos >= lineStart);
-		//QString lineBeforeCursor = text.mid(lineStart, pos - lineStart);
+
 		const int tabulationEnd = static_cast<int>(
 			std::find_if(text.begin() + lineStart, text.begin() + pos, [](const QChar c) {
-				return c != ' ' && c != '\t';
+				return !isTabulation(c);
 			}) - text.begin()
 		);
 
+		return { lineStart, text.midRef(pos, tabulationEnd - lineStart) };
+	};
+
+	if (const auto key = event->key(); key == Qt::Key_Enter || key == Qt::Key_Return)
+	{
+		const QString text = toPlainText();
+		const auto pos = textCursor().position();
+		const bool addNewTab = pos > 0 && text[pos - 1] == '{';
+
+		const auto [lineStartPos, tabulation] = tabulationForCurrentLine(text);
+
 		QPlainTextEdit::keyPressEvent(event);
 
-		if (tabulationEnd > 0)
+		if (!tabulation.isEmpty())
 		{
-			cursor = textCursor();
-			assert_debug_only(tabulationEnd >= lineStart);
-			cursor.insertText(text.mid(lineStart, tabulationEnd - lineStart));
+			auto cursor = textCursor();
+			cursor.insertText(tabulation.toString());
 		}
 
 		if (addNewTab)
 			textCursor().insertText(QString{ '\t' });
+
+		event->accept();
+	}
+	else if (event->key() == Qt::Key_Backtab)
+	{
+		auto cursor = textCursor();
+		const auto currentPos = cursor.position();
+		const auto text = toPlainText();
+		if (cursor.movePosition(QTextCursor::StartOfLine))
+		{
+			const auto charAtCursor = text.at(cursor.position());
+			if (isTabulation(charAtCursor))
+			{
+				cursor.deleteChar();
+			}
+
+			cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, currentPos - cursor.position() - 1);
+		}
+		else if (!text.isEmpty())
+		{
+			const auto charAtCursor = text.at(cursor.position());
+			if (isTabulation(charAtCursor))
+				cursor.deleteChar();
+		}
+
+		event->accept();
 	}
 	else
 		QPlainTextEdit::keyPressEvent(event);
