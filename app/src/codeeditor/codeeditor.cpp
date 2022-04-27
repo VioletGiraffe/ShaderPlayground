@@ -131,7 +131,6 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 	QPlainTextEdit::resizeEvent(e);
 
 	const QRect cr = contentsRect();
-	qDebug() << cr.width();
 	_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
