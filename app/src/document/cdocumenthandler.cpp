@@ -22,9 +22,9 @@ void CDocumentHandler::newDocument(const QByteArray& contents)
 	_document.newDocument(contents);
 }
 
-void CDocumentHandler::open()
+void CDocumentHandler::open(const QString& defaultExtensionsFilter)
 {
-	const QString path = QFileDialog::getOpenFileName(_parent, "", QFileInfo(_document.filePath()).absolutePath());
+	const QString path = QFileDialog::getOpenFileName(_parent, {}, QFileInfo(_document.filePath()).absolutePath(), defaultExtensionsFilter);
 	if (!path.isEmpty())
 		_document.setFilePath(path);
 }
@@ -40,12 +40,12 @@ bool CDocumentHandler::save()
 	if (!_document.filePath().isEmpty())
 		return _document.save();
 	else
-		return saveAs();
+		return saveAs("*.fsh");
 }
 
-bool CDocumentHandler::saveAs()
+bool CDocumentHandler::saveAs(const QString& defaultExtensionsFilter)
 {
-	const QString path = QFileDialog::getSaveFileName(_parent, "", QFileInfo(_document.filePath()).absolutePath());
+	const QString path = QFileDialog::getSaveFileName(_parent, {}, QFileInfo(_document.filePath()).absolutePath(), defaultExtensionsFilter);
 	if (path.isEmpty())
 		return false;
 

@@ -29,6 +29,8 @@ namespace Settings {
 	static constexpr const char LAST_OPEN_DOCUMENT[] = "Ui/LastOpenDocument";
 }
 
+static constexpr const char defaultDocumentExtension[] =  "Shader Playground files(*.fsh);;All files (*.*)";
+
 inline QString textFromResource(const char* resourcePath)
 {
 	QFile resourceFile(resourcePath);
@@ -138,7 +140,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	});
 
 	connect(ui->actionSave_as, &QAction::triggered, this, [this]() {
-		_documentHandler.saveAs();
+		_documentHandler.saveAs(defaultDocumentExtension);
 		CSettings().setValue(Settings::LAST_OPEN_DOCUMENT, _documentHandler.documentPath());
 		setWindowModified(_documentHandler.hasUnsavedChanges());
 	});
@@ -233,11 +235,11 @@ void MainWindow::onOpenDocument()
 			"There are unsaved changes, do you want to save them before opening a new file?")
 			== QMessageBox::Yes)
 		{
-			_documentHandler.saveAs();
+			_documentHandler.saveAs(defaultDocumentExtension);
 		}
 	}
 
-	_documentHandler.open();
+	_documentHandler.open(defaultDocumentExtension);
 
 	if (!_documentHandler.loadContents())
 	{
