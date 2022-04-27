@@ -143,6 +143,8 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 		const int pos = cursor.position();
 
 		const QString text = toPlainText();
+
+		const bool addNewTab = pos > 0 && text[pos - 1] == '{';
 		
 		const int lineStart = text.lastIndexOf('\n', std::max(pos - 1, 0)) + 1;
 		assert_debug_only(pos >= lineStart);
@@ -161,6 +163,9 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 			assert_debug_only(tabulationEnd >= lineStart);
 			cursor.insertText(text.mid(lineStart, tabulationEnd - lineStart));
 		}
+
+		if (addNewTab)
+			textCursor().insertText(QString{ '\t' });
 	}
 	else
 		QPlainTextEdit::keyPressEvent(event);
