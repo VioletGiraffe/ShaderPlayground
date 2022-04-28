@@ -297,6 +297,7 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 {
 	setFormat(0, text.length(), toTextCharFormat(_colorScheme._otherText));
 
+	int lastMatchIndex = -1, lastMatchLength = -1;
 	for (const auto& rule: _highlightingRules)
 	{
 		const auto& expression = rule.pattern;
@@ -305,6 +306,9 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 		{
 			const int length = expression.matchedLength();
 			assert_r(length > 0);
+
+			lastMatchIndex = index;
+			lastMatchLength = length;
 
 			setFormat(index, length, rule.format);
 			index = expression.indexIn(text, index + length);
@@ -315,7 +319,7 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 
 	int commentStartIndex = 0;
 	if (previousBlockState() != 1) // Comment?
-		commentStartIndex = _commentStartExpression.indexIn(text);
+		commentStartIndex = _commentStartExpression.indexIn(lastMatchIndex != -1 ? text.mid(lastMatchIndex + lastMatchLength) : text);
 
 	while (commentStartIndex >= 0)
 	{
