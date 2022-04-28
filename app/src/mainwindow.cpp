@@ -12,6 +12,7 @@
 #include "aboutdialog/caboutdialog.h"
 #include "widgets/cpersistentwindow.h"
 #include "widgets/widgetutils.h"
+#include "utils/resources.h"
 
 DISABLE_COMPILER_WARNINGS
 #include "ui_mainwindow.h"
@@ -30,15 +31,6 @@ namespace Settings {
 }
 
 static constexpr const char defaultDocumentExtension[] =  "Shader Playground files(*.fsh);;All files (*.*)";
-
-inline QString textFromResource(const char* resourcePath)
-{
-	QFile resourceFile(resourcePath);
-	assert(resourceFile.exists());
-	assert_r(resourceFile.open(QFile::ReadOnly));
-
-	return resourceFile.readAll();
-}
 
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),

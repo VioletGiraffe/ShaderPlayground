@@ -31,13 +31,14 @@ protected:
 	void showEvent(QShowEvent *event) override;
 
 	void initializeGL() override;
-	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
 private:
 	std::mutex _shaderProgramMutex;
 
 	QString _gpuName;
+
+	QString _lastWorkingShaderCode;
 
 	CTimeElapsed _timeSinceLastFrame, _totalRunTime;
 	std::unique_ptr<QOpenGLShaderProgram> _program;

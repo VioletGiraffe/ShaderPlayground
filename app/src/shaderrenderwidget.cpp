@@ -1,5 +1,8 @@
 #include "shaderrenderwidget.h"
 
+#include "assert/advanced_assert.h"
+#include "utils/resources.h"
+
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
 #include <QDate>
@@ -30,11 +33,24 @@ ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) :
 	_year = static_cast<float>(date.year());
 
 	_timer = new QTimer(this);
+
+	auto fmt = QSurfaceFormat::defaultFormat();
+	fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
+	fmt.setMajorVersion(4);
+	fmt.setMinorVersion(5);
+	setFormat(fmt);
+
+	if (const auto actualFmt = format(); actualFmt != fmt)
+	{
+		qDebug() << "Failed to set the requested format; actual format:" << actualFmt;
+		assert_unconditional_r("Failed to set the requested format");
+
+	}
+
+	_lastWorkingShaderCode = textFromResource(":/resources/blank_shader.fsh");
 }
 
-ShaderRenderWidget::~ShaderRenderWidget()
-{
-}
+ShaderRenderWidget::~ShaderRenderWidget() = default;
 
 // Returns the compilation error message, if any
 QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
@@ -43,8 +59,6 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 	std::lock_guard locker{ _shaderProgramMutex };
 #endif
 
-	const QString oldCode = _fragmentShader->sourceCode();
-
 	if (_program->isLinked())
 		_program->removeShader(_fragmentShader.get());
 
@@ -52,8 +66,10 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 	if (!_fragmentShader->compileSourceCode(shaderSource))
 	{
 		shaderCompilationError = _fragmentShader->log();
-		_fragmentShader->compileSourceCode(oldCode);
+		_fragmentShader->compileSourceCode(_lastWorkingShaderCode);
 	}
+	else
+		_lastWorkingShaderCode = shaderSource;
 
 	if (!_program->addShader(_fragmentShader.get()))
 		return shaderCompilationError + "\nFailed to add fragment shader.\n\n" + _program->log();
@@ -98,14 +114,6 @@ void ShaderRenderWidget::initializeGL()
 
 	connect(_timer, &QTimer::timeout, this, (void (ShaderRenderWidget::*)()) &ShaderRenderWidget::update);
 	_timer->start(1000 / TargetFPS);
-}
-
-void ShaderRenderWidget::resizeGL(int w, int h)
-{
-	QOpenGLWidget::resizeGL(w, h);
-	// TODO: manually calling glViewport() has no effect in QOpenGLWidget?
-//	const auto scale = devicePixelRatio();
-//	glViewport(0, 0, scale * w, scale * h);
 }
 
 void ShaderRenderWidget::paintGL()

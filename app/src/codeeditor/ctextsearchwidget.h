@@ -25,7 +25,7 @@ struct TextSearchCallbacks
 	virtual void replaceAll(const QString& what, const QString& with, const TextSearchOptions options = TextSearchOptions()) = 0;
 };
 
-class CTextSearchWidget : public QWidget
+class CTextSearchWidget final : public QWidget
 {
 public:
 	explicit CTextSearchWidget(QWidget *parent = nullptr);

@@ -4,5 +4,6 @@
         <file>resources/default_shadertoy_template.fsh</file>
         <file>resources/default_vertex_shader.vsh</file>
         <file>resources/default_fragment_shader_shadertoy.fsh</file>
+        <file>resources/blank_shader.fsh</file>
     </qresource>
 </RCC>

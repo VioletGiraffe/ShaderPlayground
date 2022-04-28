@@ -17,7 +17,7 @@ namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QMainWindow
+class MainWindow final : public QMainWindow
 {
 public:
 	explicit MainWindow(QWidget *parent = 0);
