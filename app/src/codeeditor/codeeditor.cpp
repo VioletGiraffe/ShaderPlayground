@@ -34,6 +34,7 @@ CodeEditorWithSearch::CodeEditorWithSearch(QWidget* parent) : QWidget(parent)
 	connect(shortcutShowSearchWidget, &QShortcut::activated, this, [this]() {
 		_searchWidget->setShowReplaceUI(false);
 		_searchWidget->show();
+		_searchWidget->grabFocus();
 	});
 }
 
@@ -55,11 +56,6 @@ void CodeEditorWithSearch::findNext(const QString& what, const TextSearchOptions
 	QTextDocument::FindFlags flags;
 	if (options.caseSensitive) flags |= QTextDocument::FindCaseSensitively;
 	_editor->find(what, flags);
-}
-
-void CodeEditorWithSearch::findAll(const QString& what, const TextSearchOptions options)
-{
-
 }
 
 void CodeEditorWithSearch::replaceNext(const QString& what, const QString& with, const TextSearchOptions options)

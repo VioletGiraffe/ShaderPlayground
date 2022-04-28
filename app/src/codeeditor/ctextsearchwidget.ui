@@ -15,33 +15,54 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="leftMargin">
-    <number>0</number>
+    <number>8</number>
    </property>
    <property name="topMargin">
     <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>0</number>
+    <number>8</number>
    </property>
    <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
-    <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,0,0">
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
+    <layout class="QGridLayout" name="gridLayout" columnstretch="0,0,0,0">
+     <item row="1" column="3">
+      <widget class="QPushButton" name="_replaceAll">
        <property name="text">
-        <string>Find</string>
+        <string>Replace all</string>
        </property>
       </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="_searchFor"/>
      </item>
      <item row="0" column="2">
       <widget class="QPushButton" name="_findPrevious">
        <property name="text">
         <string>&lt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="_replaceWith"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Replace</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="_replace">
+       <property name="text">
+        <string>Replace next</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Find</string>
        </property>
       </widget>
      </item>
@@ -52,43 +73,15 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <widget class="QPushButton" name="_findAll">
-       <property name="text">
-        <string>Find all</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Replace</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="_replaceWith"/>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="_replace">
-       <property name="text">
-        <string>Replace next</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QPushButton" name="_replaceAll">
-       <property name="text">
-        <string>Replace all</string>
-       </property>
-      </widget>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="_searchFor"/>
      </item>
     </layout>
    </item>
    <item>
     <widget class="QCheckBox" name="_caseSensitive">
      <property name="text">
-      <string>CS</string>
+      <string>Case sensitive</string>
      </property>
     </widget>
    </item>

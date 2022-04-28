@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	}
 
 	// "color: white" only really affects the line numbers, since everything else is colored with the ColorScheme
-	_shaderEditorWidget->setStyleSheet("color: white; selection-background-color: rgba(200, 200, 200, 150); selection-color: rgb(30, 30, 30);");
+	_shaderEditorWidget->setStyleSheet("color: white; selection-background-color: rgba(250, 100, 0, 200); selection-color: white;");
 	_shaderEditorWidget->setFrameStyle(QFrame::NoFrame);
 	auto editorPalette = _shaderEditorWidget->palette();
 	editorPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);

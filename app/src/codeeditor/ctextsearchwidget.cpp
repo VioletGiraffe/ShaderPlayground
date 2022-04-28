@@ -26,10 +26,6 @@ CTextSearchWidget::CTextSearchWidget(QWidget *parent) :
 		if (_callbackReceiver) _callbackReceiver->findPrevious(ui->_searchFor->text(), currentOptions());
 	});
 
-	connect(ui->_findAll, &QPushButton::clicked, this, [this]() {
-		if (_callbackReceiver) _callbackReceiver->findAll(ui->_searchFor->text(), currentOptions());
-	});
-
 	connect(ui->_replace, &QPushButton::clicked, this, [this]() {
 		if (_callbackReceiver) _callbackReceiver->replaceNext(ui->_searchFor->text(), ui->_replaceWith->text(),currentOptions());
 	});
@@ -37,6 +33,8 @@ CTextSearchWidget::CTextSearchWidget(QWidget *parent) :
 	connect(ui->_replaceAll, &QPushButton::clicked, this, [this]() {
 		if (_callbackReceiver) _callbackReceiver->replaceAll(ui->_searchFor->text(), ui->_replaceWith->text(), currentOptions());
 	});
+
+	connect(ui->_searchFor, &QLineEdit::returnPressed, ui->_findNext, &QPushButton::click);
 }
 
 CTextSearchWidget::~CTextSearchWidget()
@@ -57,7 +55,13 @@ void CTextSearchWidget::setShowReplaceUI(bool show)
 		if (item)
 			item->widget()->setVisible(show);
 	}
-} 
+}
+
+void CTextSearchWidget::grabFocus()
+{
+	ui->_searchFor->setFocus();
+}
+
 
 TextSearchOptions CTextSearchWidget::currentOptions() const
 {

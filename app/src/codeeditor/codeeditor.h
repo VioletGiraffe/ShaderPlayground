@@ -24,7 +24,6 @@ public:
 
 	void findPrevious(const QString& what, const TextSearchOptions options = TextSearchOptions()) override;
 	void findNext(const QString& what, const TextSearchOptions options = TextSearchOptions()) override;
-	void findAll(const QString& what, const TextSearchOptions options = TextSearchOptions()) override;
 
 	void replaceNext(const QString& what, const QString& with, const TextSearchOptions options = TextSearchOptions()) override;
 	void replaceAll(const QString& what, const QString& with, const TextSearchOptions options = TextSearchOptions()) override;

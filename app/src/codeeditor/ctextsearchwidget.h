@@ -19,7 +19,6 @@ struct TextSearchCallbacks
 {
 	virtual void findPrevious(const QString& what, const TextSearchOptions options = TextSearchOptions()) = 0;
 	virtual void findNext(const QString& what, const TextSearchOptions options = TextSearchOptions()) = 0;
-	virtual void findAll(const QString& what, const TextSearchOptions options = TextSearchOptions()) = 0;
 
 	virtual void replaceNext(const QString& what, const QString& with, const TextSearchOptions options = TextSearchOptions()) = 0;
 	virtual void replaceAll(const QString& what, const QString& with, const TextSearchOptions options = TextSearchOptions()) = 0;
@@ -34,6 +33,7 @@ public:
 	void setCallbackReceiver(TextSearchCallbacks* receiver);
 
 	void setShowReplaceUI(bool show);
+	void grabFocus();
 
 private:
 	TextSearchOptions currentOptions() const;
