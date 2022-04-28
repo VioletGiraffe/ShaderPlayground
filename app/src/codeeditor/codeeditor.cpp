@@ -79,7 +79,10 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 	connect(this, &QPlainTextEdit::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
 	connect(this, &QPlainTextEdit::updateRequest, this, &CodeEditor::updateLineNumberArea);
 	connect(this, &QPlainTextEdit::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
-	connect(document(), &QTextDocument::contentsChanged, this, &CodeEditor::applyTextBackgroundColor); // Fix for #6
+	connect(document(), &QTextDocument::contentsChange, this, [this](int /*position*/, int /*charsRemoved*/, int charsAdded) {
+		if (charsAdded > 0)
+			applyTextBackgroundColor();
+	}); // Fix for #6
 
 	updateLineNumberAreaWidth(0);
 	highlightCurrentLine();
