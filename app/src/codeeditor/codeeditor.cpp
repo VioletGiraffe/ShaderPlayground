@@ -139,7 +139,7 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 		return c == '\t' || c == ' ';
 	};
 
-	const auto tabulationForCurrentLine = [this](const QString& text) -> std::pair<int /* startPos */, QStringRef> {
+	const auto tabulationForCurrentLine = [this](const QString& text) -> std::pair<int /* startPos */, QString> {
 		auto cursor = textCursor();
 		const int pos = cursor.position();
 
@@ -152,7 +152,7 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 			}) - text.begin()
 		);
 
-		return { lineStart, text.midRef(pos, tabulationEnd - lineStart) };
+		return { lineStart, text.mid(lineStart, tabulationEnd - lineStart) };
 	};
 
 	if (const auto key = event->key(); key == Qt::Key_Enter || key == Qt::Key_Return)
@@ -168,7 +168,7 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 		if (!tabulation.isEmpty())
 		{
 			auto cursor = textCursor();
-			cursor.insertText(tabulation.toString());
+			cursor.insertText(tabulation);
 		}
 
 		if (addNewTab)
