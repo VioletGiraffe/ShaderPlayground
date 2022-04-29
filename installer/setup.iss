@@ -29,10 +29,10 @@ ArchitecturesInstallIn64BitMode=x64
 Source: binaries/64/*; DestDir: {app}; Flags: ignoreversion
 
 ;Qt binaries
-Source: binaries/64/Qt/*; DestDir: {app}; Flags: ignoreversion recursesubdirs
+Source: binaries/64/Qt/*; DestDir: {app}; Flags: recursesubdirs
 
 ;MSVC binaries
-Source: binaries/64/msvcr/*; DestDir: {app}; Flags: ignoreversion
+Source: binaries/64/msvcr/*; DestDir: {app};
 
 [Icons]
 Name: {group}\Shader Playground; Filename: {app}\ShaderPlayground.exe;
