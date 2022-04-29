@@ -18,6 +18,7 @@ DISABLE_COMPILER_WARNINGS
 #include "ui_mainwindow.h"
 
 #include <QActionGroup>
+#include <QDate>
 #include <QMessageBox>
 #include <QStringBuilder>
 RESTORE_COMPILER_WARNINGS
@@ -180,13 +181,12 @@ MainWindow::MainWindow(QWidget* parent) :
 	});
 
 	connect(ui->actionAbout, &QAction::triggered, this, [this]() {
-		CAboutDialog("0.1", this, "2017").exec();
+		const auto buildDate = QLocale(QLocale::English, QLocale::UnitedStates).toDate(__DATE__, "MMM d yyyy");
+		CAboutDialog(buildDate.toString("yy.MM"), this, "2017").exec();
 	});
 
 	connect(&_fpsUpdaterTimer, &QTimer::timeout, this, &MainWindow::updateWindowTitle);
-	_fpsUpdaterTimer.start(100);
-
-	updateWindowTitle();
+	_fpsUpdaterTimer.start(200);
 }
 
 MainWindow::~MainWindow()
@@ -272,8 +272,8 @@ void MainWindow::updateWindowTitle()
 {
 	const QString documentName = !_documentHandler.documentName().isEmpty() ? _documentHandler.documentName() : "Untitled shader";
 	setWindowTitle(documentName %
-		"[*] - " % _renderWidget->gpuName() % ", FPS: " %
-		QString::number((int)(1000.0f / _renderWidget->frameRenderingPeriod()))
+		"[*] - " % _renderWidget->gpuName() % ", frame time: " %
+		QString::number(_renderWidget->frameTimeMs(), 'f', 1) % " ms"
 	);
 }
 

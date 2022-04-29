@@ -7,6 +7,7 @@ DISABLE_COMPILER_WARNINGS
 #include <QApplication>
 #include <QDate>
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QMatrix4x4>
 #include <QMouseEvent>
 #include <QOpenGLShader>
@@ -84,6 +85,11 @@ float ShaderRenderWidget::frameRenderingPeriod() const
 	return _frameRenderingPeriod;
 }
 
+float ShaderRenderWidget::frameTimeMs() const noexcept
+{
+	return _frameTimeNanosec * 1e-6f;
+}
+
 QString ShaderRenderWidget::gpuName() const
 {
 	return _gpuName;
@@ -118,6 +124,8 @@ void ShaderRenderWidget::initializeGL()
 
 void ShaderRenderWidget::paintGL()
 {
+	QElapsedTimer timer;
+	timer.start();
 #ifndef _WIN32
 	std::lock_guard locker{ _shaderProgramMutex };
 #endif
@@ -182,4 +190,6 @@ void ShaderRenderWidget::paintGL()
 
 	_program->disableAttributeArray("vertexPosition");
 	LogGlError;
+
+	_frameTimeNanosec = timer.nsecsElapsed();
 }

@@ -8,6 +8,7 @@ DISABLE_COMPILER_WARNINGS
 #include <QOpenGLWidget>
 RESTORE_COMPILER_WARNINGS
 
+#include <atomic>
 #include <memory>
 #include <mutex>
 
@@ -25,6 +26,7 @@ public:
 	[[nodiscard]] QString setFragmentShader(const QString& shaderSource);
 
 	[[nodiscard]] float frameRenderingPeriod() const;
+	[[nodiscard]] float frameTimeMs() const noexcept;
 	[[nodiscard]] QString gpuName() const;
 
 protected:
@@ -47,6 +49,7 @@ private:
 	QTimer* _timer = nullptr;
 
 	float _frameRenderingPeriod = 0.0f;
+	std::atomic_int64_t _frameTimeNanosec;
 	int _frameCounter = 0;
 
 	float _day, _month, _year;
