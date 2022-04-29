@@ -173,8 +173,6 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 
 		if (addNewTab)
 			textCursor().insertText(QString{ '\t' });
-
-		event->accept();
 	}
 	else if (event->key() == Qt::Key_Backtab)
 	{
@@ -199,6 +197,16 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 		}
 
 		event->accept();
+	}
+	else if (event->key() == Qt::Key_BraceRight)
+	{
+		const auto text = toPlainText();
+		const auto [lineStartPos, tabulation] = tabulationForCurrentLine(text);
+		auto cursor = textCursor();
+		if (tabulation.length() > 0 && lineStartPos + tabulation.length() == cursor.position())
+			cursor.deletePreviousChar();
+
+		QPlainTextEdit::keyPressEvent(event);
 	}
 	else
 		QPlainTextEdit::keyPressEvent(event);
