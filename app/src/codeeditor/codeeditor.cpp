@@ -270,34 +270,31 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 		QPlainTextEdit::keyPressEvent(event);
 
 	// Completer handling
-
-	const bool ctrlOrShift = event->modifiers().testFlag(Qt::ControlModifier) ||
-		event->modifiers().testFlag(Qt::ShiftModifier);
-	if (ctrlOrShift && event->text().isEmpty())
-		return;
+	const auto mods = event->modifiers();
 
 	static const QString eow("~!@#$%^&|*()_+{}|:\"<>?,./;'[]\\-="); // end of word
-	const bool hasModifier = (event->modifiers() != Qt::NoModifier) && !ctrlOrShift;
 
 	QTextCursor tc = textCursor();
 	tc.select(QTextCursor::WordUnderCursor);
 	const QString completionPrefix = tc.selectedText();
 
 	bool isShortcut = false;
+	const bool hasModifier = mods != Qt::NoModifier;
 	if (!isShortcut && (hasModifier || event->text().isEmpty() || completionPrefix.length() < 1
-		|| eow.contains(event->text().right(1)))) {
+		|| eow.contains(event->text().right(1))))
+	{
 		_completer->popup()->hide();
 		return;
 	}
 
-	if (completionPrefix != _completer->completionPrefix()) {
+	if (completionPrefix != _completer->completionPrefix())
+	{
 		_completer->setCompletionPrefix(completionPrefix);
 		_completer->popup()->setCurrentIndex(_completer->completionModel()->index(0, 0));
 	}
 
 	QRect cr = cursorRect();
-	cr.setWidth(_completer->popup()->sizeHintForColumn(0)
-		+ _completer->popup()->verticalScrollBar()->sizeHint().width());
+	cr.setWidth(_completer->popup()->sizeHintForColumn(0) + _completer->popup()->verticalScrollBar()->sizeHint().width());
 	_completer->complete(cr); // popup it up!
 }
 
