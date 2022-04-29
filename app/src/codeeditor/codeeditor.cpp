@@ -3,11 +3,17 @@
 #include "string/stringutils.h"
 #include "assert/advanced_assert.h"
 #include "math/math.hpp"
+#include "container/algorithms.hpp"
 
 DISABLE_COMPILER_WARNINGS
+#include <QAbstractItemView>
+#include <QCompleter>
 #include <QDebug>
 #include <QPainter>
+#include <QRegularExpression>
+#include <QScrollBar>
 #include <QShortcut>
+#include <QStringListModel>
 #include <QTextBlock>
 #include <QVBoxLayout>
 RESTORE_COMPILER_WARNINGS
@@ -82,6 +88,13 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 
 	updateLineNumberAreaWidth(0);
 	highlightCurrentLine();
+
+	_completer = new QCompleter(this);
+	_completer->setWidget(this);
+	_completer->setCompletionMode(QCompleter::PopupCompletion);
+	_completer->setCaseSensitivity(Qt::CaseInsensitive);
+	_completer->setModel(new QStringListModel(_completer));
+	QObject::connect(_completer, QOverload<const QString&>::of(&QCompleter::activated),	this, &CodeEditor::insertCompletion);
 }
 
 int CodeEditor::lineNumberAreaWidth()
@@ -100,6 +113,24 @@ void CodeEditor::setTextBackgroundColor(const QColor& color)
 	auto lineNumberArea = _lineNumberArea->palette();
 	lineNumberArea.setColor(QPalette::Window, color);
 	_lineNumberArea->setPalette(lineNumberArea);
+}
+
+void CodeEditor::setPlainText(const QString& text)
+{
+	QPlainTextEdit::setPlainText(text);
+
+	static const QRegularExpression regex("[" +
+		QRegularExpression::escape(R"([~!@#$%?()[]"+-*/.,;:|&<>=^{} )") + R"(\n\t)"
+		+ "]+");
+	QStringList tokens = text.split(regex, Qt::SkipEmptyParts);
+
+	ContainerAlgorithms::erase_if(tokens, [](const QString& s) {
+		return s.length() <= 2;
+	});
+	tokens.sort();
+	tokens.removeDuplicates();
+
+	reinterpret_cast<QStringListModel*>(_completer->model())->setStringList(tokens);
 }
 
 void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
@@ -125,6 +156,19 @@ void CodeEditor::applyTextBackgroundColor()
 	setCurrentCharFormat(fmt);
 }
 
+inline void CodeEditor::insertCompletion(const QString& completion)
+{
+	if (_completer->widget() != this)
+		return;
+
+	QTextCursor tc = textCursor();
+	const int extra = completion.length() - _completer->completionPrefix().length();
+	tc.movePosition(QTextCursor::Left);
+	tc.movePosition(QTextCursor::EndOfWord);
+	tc.insertText(completion.right(extra));
+	setTextCursor(tc);
+}
+
 void CodeEditor::resizeEvent(QResizeEvent *e)
 {
 	QPlainTextEdit::resizeEvent(e);
@@ -135,6 +179,22 @@ void CodeEditor::resizeEvent(QResizeEvent *e)
 
 void CodeEditor::keyPressEvent(QKeyEvent* event)
 {
+	if (_completer->popup()->isVisible())
+	{
+		// The following keys are forwarded by the completer to the widget
+		switch (event->key()) {
+		case Qt::Key_Enter:
+		case Qt::Key_Return:
+		case Qt::Key_Escape:
+		case Qt::Key_Tab:
+		case Qt::Key_Backtab:
+			event->ignore();
+			return; // let the completer do default behavior
+		default:
+			break;
+		}
+	}
+
 	static constexpr auto isTabulation = [](QChar c) {
 		return c == '\t' || c == ' ';
 	};
@@ -186,8 +246,6 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 			{
 				cursor.deleteChar();
 			}
-
-			cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, currentPos - cursor.position() - 1);
 		}
 		else if (!text.isEmpty())
 		{
@@ -210,6 +268,37 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 	}
 	else
 		QPlainTextEdit::keyPressEvent(event);
+
+	// Completer handling
+
+	const bool ctrlOrShift = event->modifiers().testFlag(Qt::ControlModifier) ||
+		event->modifiers().testFlag(Qt::ShiftModifier);
+	if (ctrlOrShift && event->text().isEmpty())
+		return;
+
+	static const QString eow("~!@#$%^&|*()_+{}|:\"<>?,./;'[]\\-="); // end of word
+	const bool hasModifier = (event->modifiers() != Qt::NoModifier) && !ctrlOrShift;
+
+	QTextCursor tc = textCursor();
+	tc.select(QTextCursor::WordUnderCursor);
+	const QString completionPrefix = tc.selectedText();
+
+	bool isShortcut = false;
+	if (!isShortcut && (hasModifier || event->text().isEmpty() || completionPrefix.length() < 1
+		|| eow.contains(event->text().right(1)))) {
+		_completer->popup()->hide();
+		return;
+	}
+
+	if (completionPrefix != _completer->completionPrefix()) {
+		_completer->setCompletionPrefix(completionPrefix);
+		_completer->popup()->setCurrentIndex(_completer->completionModel()->index(0, 0));
+	}
+
+	QRect cr = cursorRect();
+	cr.setWidth(_completer->popup()->sizeHintForColumn(0)
+		+ _completer->popup()->verticalScrollBar()->sizeHint().width());
+	_completer->complete(cr); // popup it up!
 }
 
 void CodeEditor::highlightCurrentLine()

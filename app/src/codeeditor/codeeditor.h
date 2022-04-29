@@ -7,6 +7,7 @@ DISABLE_COMPILER_WARNINGS
 #include <QPlainTextEdit>
 RESTORE_COMPILER_WARNINGS
 
+class QCompleter;
 class QPaintEvent;
 class QResizeEvent;
 class QSize;
@@ -44,6 +45,9 @@ public:
 
 	void setTextBackgroundColor(const QColor& color);
 
+	// Beware, not a virtual function!
+	void setPlainText(const QString& text);
+
 protected:
 	void resizeEvent(QResizeEvent *event) override;
 	void keyPressEvent(QKeyEvent* event) override;
@@ -55,9 +59,12 @@ private:
 
 	void applyTextBackgroundColor();
 
+	void insertCompletion(const QString& completion);
+
 private:
 	QColor _textBgColor;
 	QWidget* _lineNumberArea = nullptr;
+	QCompleter* _completer = nullptr;
 };
 
 
