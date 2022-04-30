@@ -5,7 +5,7 @@ precision highp float;
 
 varying highp vec2 pixelPosition;
 uniform mediump vec2 screenSize;
-uniform mediump vec3 mousePosition;
+uniform mediump vec4 mousePosition;
 
 uniform highp float frameTime;
 uniform mediump float totalTime;

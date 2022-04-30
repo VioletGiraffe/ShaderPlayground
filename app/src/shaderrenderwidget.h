@@ -33,6 +33,7 @@ protected:
 	void showEvent(QShowEvent *event) override;
 
 	void initializeGL() override;
+	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
 private:
@@ -41,6 +42,8 @@ private:
 	QString _gpuName;
 
 	QString _lastWorkingShaderCode;
+
+	QPoint _lastMousePosWithButtonPressed{ 0, 0 };
 
 	CTimeElapsed _timeSinceLastFrame, _totalRunTime;
 	std::unique_ptr<QOpenGLShaderProgram> _program;

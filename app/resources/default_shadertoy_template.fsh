@@ -15,7 +15,7 @@ uniform int iFrame;
 uniform mediump vec4 iDate;
 
 // ShaderToy compatibility variables
-vec4 iMouse = vec4(mousePosition.x, iResolution.y - mousePosition.y, mousePosition.z, mousePosition.w >= 0.0 ? iResolution.y - mousePosition.y : mousePosition.w);
+vec4 iMouse = vec4(mousePosition.x, iResolution.y - mousePosition.y, mousePosition.z, iResolution.y - mousePosition.w);
 float iGlobalTime = totalTime / 1000.0;
 #define iTimeDelta frameTime;
 #define iTime iGlobalTime

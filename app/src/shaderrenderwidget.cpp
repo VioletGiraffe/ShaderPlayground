@@ -122,6 +122,14 @@ void ShaderRenderWidget::initializeGL()
 	_timer->start(1000 / TargetFPS);
 }
 
+void ShaderRenderWidget::resizeGL(int w, int h)
+{
+	if (_lastMousePosWithButtonPressed.manhattanLength() == 0)
+		_lastMousePosWithButtonPressed = QPoint{ w / 2, h / 2 };
+
+	QOpenGLWidget::resizeGL(w, h);
+}
+
 void ShaderRenderWidget::paintGL()
 {
 	QElapsedTimer timer;
@@ -164,13 +172,17 @@ void ShaderRenderWidget::paintGL()
 	LogGlError;
 	_program->setUniformValue("iResolution", size());
 	LogGlError;
-	auto mouseStatus = QVector4D(QVector2D(mapFromGlobal(QCursor::pos())), -1.0f, -1.0f);
+	const auto mousePos = mapFromGlobal(QCursor::pos());
 	if (QApplication::mouseButtons() & (Qt::LeftButton | Qt::RightButton))
 	{
-		mouseStatus.setZ(mouseStatus.x());
-		mouseStatus.setW(mouseStatus.y());
+		qDebug() << QApplication::mouseButtons();
+		_lastMousePosWithButtonPressed = mousePos;
 	}
 
+	const auto mouseStatus = QVector4D(
+		mousePos.x(), mousePos.y(),
+		_lastMousePosWithButtonPressed.x(), _lastMousePosWithButtonPressed.y()
+	);
 	_program->setUniformValue("mousePosition", mouseStatus);
 	LogGlError;
 

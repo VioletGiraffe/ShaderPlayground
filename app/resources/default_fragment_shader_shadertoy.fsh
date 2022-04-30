@@ -2,7 +2,8 @@
 						  AVAILABLE VARIABLES:
 
 vec2 iResolution: visible area {x, y} size in pixels, {0,0} is bottom left
-vec3 iMouse: mouse coordinates {x, y} in pixels, {0,0} is bottom left
+vec4 iMouse: mouse coordinates {x, y} in pixels, {0,0} is bottom left.
+	 iMouse.zw is the coordinates of the last mous click.
 float iGlobalTime: time in seconds since the shader has started working 
 float iTime: an alias for iGlobalTime;
 float iTimeDelta: time since the previous frame in seconds
