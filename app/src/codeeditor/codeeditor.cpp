@@ -20,6 +20,8 @@ RESTORE_COMPILER_WARNINGS
 
 #include <algorithm>
 
+static QString tokenDelimiters{ R"([~!@#$%?()[]"+-*/.,;:|&<>=^{} )" };
+
 
 CodeEditorWithSearch::CodeEditorWithSearch(QWidget* parent) : QWidget(parent)
 {
@@ -81,10 +83,29 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 	connect(this, &QPlainTextEdit::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
 	connect(this, &QPlainTextEdit::updateRequest, this, &CodeEditor::updateLineNumberArea);
 	connect(this, &QPlainTextEdit::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
-	connect(document(), &QTextDocument::contentsChange, this, [this](int /*position*/, int /*charsRemoved*/, int charsAdded) {
-		if (charsAdded > 0)
-			applyTextBackgroundColor();
-	}); // Fix for #6
+	connect(document(), &QTextDocument::contentsChange, this, [this](int position, int /*charsRemoved*/, int charsAdded) {
+		if (charsAdded <= 0)
+			return;
+
+		applyTextBackgroundColor(); // Fix for #6, but not really
+
+		const QString text = toPlainText();
+		if (charsAdded > 1)
+		{
+			updateTokensList(text);
+		}
+		else
+		{
+			const auto cursor = textCursor();
+			const auto pos = cursor.position();
+			if (pos - 1 >= text.length())
+				return;
+
+			const auto charAtCursor = text[pos - 1];
+			if (tokenDelimiters.contains(charAtCursor))
+				updateTokensList(text);
+		}
+	}); 
 
 	updateLineNumberAreaWidth(0);
 	highlightCurrentLine();
@@ -118,19 +139,7 @@ void CodeEditor::setTextBackgroundColor(const QColor& color)
 void CodeEditor::setPlainText(const QString& text)
 {
 	QPlainTextEdit::setPlainText(text);
-
-	static const QRegularExpression regex("[" +
-		QRegularExpression::escape(R"([~!@#$%?()[]"+-*/.,;:|&<>=^{} )") + R"(\n\t)"
-		+ "]+");
-	QStringList tokens = text.split(regex, Qt::SkipEmptyParts);
-
-	ContainerAlgorithms::erase_if(tokens, [](const QString& s) {
-		return s.length() <= 2;
-	});
-	tokens.sort();
-	tokens.removeDuplicates();
-
-	reinterpret_cast<QStringListModel*>(_completer->model())->setStringList(tokens);
+	updateTokensList(text);
 }
 
 void CodeEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
@@ -167,6 +176,39 @@ inline void CodeEditor::insertCompletion(const QString& completion)
 	tc.movePosition(QTextCursor::EndOfWord);
 	tc.insertText(completion.right(extra));
 	setTextCursor(tc);
+}
+
+void CodeEditor::updateTokensList(const QString& text)
+{
+	static const QRegularExpression regex("["
+		+ QRegularExpression::escape(tokenDelimiters) + R"(\n\t)"
+		+ "]+");
+
+	auto* model = reinterpret_cast<QStringListModel*>(_completer->model());
+
+	QStringList tokens = text.split(regex, Qt::SkipEmptyParts);
+
+	ContainerAlgorithms::erase_if(tokens, [](const QString& s) {
+		static const QRegularExpression notANumber{ "[a-zA-Z]+" };
+		return s.length() <= 2 || !s.contains(notANumber);
+	});
+	tokens.append(model->stringList());
+	tokens.sort();
+	tokens.removeDuplicates();
+
+	//for (auto it = tokens.begin(), end = tokens.end(); it != end; ++it)
+	//{
+	//	for (auto itNested = it + 1; itNested != end; ++itNested)
+	//	{
+	//		if (itNested->startsWith(*it))
+	//		{
+	//			it->clear();
+	//			break;
+	//		}
+	//	}
+	//}
+
+	model->setStringList(tokens);
 }
 
 void CodeEditor::resizeEvent(QResizeEvent *e)

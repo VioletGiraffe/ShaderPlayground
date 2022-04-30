@@ -60,6 +60,7 @@ private:
 	void applyTextBackgroundColor();
 
 	void insertCompletion(const QString& completion);
+	void updateTokensList(const QString& text);
 
 private:
 	QColor _textBgColor;
