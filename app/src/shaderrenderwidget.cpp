@@ -180,8 +180,8 @@ void ShaderRenderWidget::paintGL()
 	}
 
 	const auto mouseStatus = QVector4D(
-		mousePos.x(), mousePos.y(),
-		_lastMousePosWithButtonPressed.x(), _lastMousePosWithButtonPressed.y()
+		(float)mousePos.x(), (float)mousePos.y(),
+		(float)_lastMousePosWithButtonPressed.x(), (float)_lastMousePosWithButtonPressed.y()
 	);
 	_program->setUniformValue("mousePosition", mouseStatus);
 	LogGlError;

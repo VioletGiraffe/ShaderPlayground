@@ -279,7 +279,6 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 	else if (event->key() == Qt::Key_Backtab)
 	{
 		auto cursor = textCursor();
-		const auto currentPos = cursor.position();
 		const auto text = toPlainText();
 		if (cursor.movePosition(QTextCursor::StartOfLine))
 		{

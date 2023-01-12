@@ -1,9 +1,11 @@
 #include "colorscheme.h"
 #include "assert/advanced_assert.h"
 
+DISABLE_COMPILER_WARNINGS
 #undef emit
 #define RYML_SINGLE_HDR_DEFINE_NOW 
 #include "../3rdparty/rapidyaml.hpp"
+RESTORE_COMPILER_WARNINGS
 
 ColorScheme ColorScheme::fromYaml(const QString& yaml)
 {
