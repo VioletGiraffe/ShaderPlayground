@@ -1,12 +1,9 @@
-#include "shaderrenderwidget.h"
 #include "mainwindow.h"
 #include "assert/advanced_assert.h"
-#include "ui/ui-inspector/cuiinspector.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QSurfaceFormat>
 RESTORE_COMPILER_WARNINGS
 

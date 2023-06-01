@@ -1,4 +1,10 @@
-QT = core gui widgets opengl
+QT = core gui widgets
+
+greaterThan(QT_MAJOR_VERSION, 5) {
+	QT += core5compat openglwidgets
+} else {
+	QT += opengl
+}
 
 TARGET = ShaderPlayground
 TEMPLATE = app
@@ -77,7 +83,7 @@ HEADERS += \
 	src/document/csaveabledocument.h \
 	src/document/cdocumenthandler.h \
 	src/settings.h \
-    src/codeeditor/ctextsearchwidget.h
+	src/codeeditor/ctextsearchwidget.h
 
 SOURCES += \
 	src/codeeditor/colorscheme.cpp \
@@ -91,12 +97,12 @@ SOURCES += \
 	src/shaderframework.cpp \
 	src/document/csaveabledocument.cpp \
 	src/document/cdocumenthandler.cpp \
-    src/codeeditor/ctextsearchwidget.cpp
+	src/codeeditor/ctextsearchwidget.cpp
 
 FORMS += \
 	src/colorschemeeditor.ui \
 	src/mainwindow.ui \
-    src/codeeditor/ctextsearchwidget.ui
+	src/codeeditor/ctextsearchwidget.ui
 
 RESOURCES += \
 	shaders.qrc

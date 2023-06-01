@@ -7,7 +7,6 @@
 #include "colorschemeeditor.h"
 
 #include "widgets/layouts/coverlaylayout.h"
-#include "assert/advanced_assert.h"
 #include "settings/csettings.h"
 #include "aboutdialog/caboutdialog.h"
 #include "widgets/cpersistentwindow.h"
@@ -19,6 +18,7 @@ DISABLE_COMPILER_WARNINGS
 
 #include <QActionGroup>
 #include <QDate>
+#include <QFile>
 #include <QMessageBox>
 #include <QStringBuilder>
 RESTORE_COMPILER_WARNINGS

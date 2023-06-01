@@ -24,7 +24,7 @@ ShaderSyntaxHighlighter::ShaderSyntaxHighlighter(ColorScheme colors, QTextDocume
 void ShaderSyntaxHighlighter::addPatternFromList(const QStringList& list, const QTextCharFormat& format)
 {
 	for (const QString& pattern: list)
-		_highlightingRules.push_back(HighlightingRule{QRegExp(QString("\\b") + pattern + QString("\\b")), format});
+		_highlightingRules.push_back(HighlightingRule{QRegularExpression(QStringLiteral("\\b") + pattern + QStringLiteral("\\b")), format});
 }
 
 void ShaderSyntaxHighlighter::setColorScheme(ColorScheme colors)
@@ -56,44 +56,44 @@ void ShaderSyntaxHighlighter::setColorScheme(ColorScheme colors)
 	addPatternFromList(glslRepeat, toTextCharFormat(_colorScheme._statementFormat));
 
 	/* Numbers */
-	rule.pattern = QRegExp("\\b\\d+(u{,1}l{0,2}|ll{,1}u)\\b");
+	rule.pattern = QRegularExpression("\\b\\d+(u{,1}l{0,2}|ll{,1}u)\\b");
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(rule);
 
-	rule.pattern = QRegExp("\\b0x\\x+(u{,1}l{0,2}|ll{,1}u)\\b");
+	rule.pattern = QRegularExpression("\\b0x\\x+(u{,1}l{0,2}|ll{,1}u)\\b");
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(rule);
 
-	rule.pattern = QRegExp("\\b\\d+f\\b");
+	rule.pattern = QRegularExpression("\\b\\d+f\\b");
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(rule);
 
-	rule.pattern = QRegExp("\\b\\d+\\.\\d*(e[-+]{,1}\\d+){,1}[fl]{,1}\\b");
+	rule.pattern = QRegularExpression("\\b\\d+\\.\\d*(e[-+]{,1}\\d+){,1}[fl]{,1}\\b");
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(rule);
 
-	rule.pattern = QRegExp("\\b\\.\\d+(e[-+]{,1}\\d+){,1}[fl]{,1}\\b");
+	rule.pattern = QRegularExpression("\\b\\.\\d+(e[-+]{,1}\\d+){,1}[fl]{,1}\\b");
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(rule);
 
-	rule.pattern = QRegExp("\\b\\d+e[-+]{,1}\\d+[fl]{,1}\\b");
+	rule.pattern = QRegularExpression("\\b\\d+e[-+]{,1}\\d+[fl]{,1}\\b");
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(rule);
 
-	rule.pattern = QRegExp("\\b0\\o*[89]\\d*\\b");
+	rule.pattern = QRegularExpression("\\b0\\o*[89]\\d*\\b");
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(rule);
 
 	/* Swizzles */
-	rule.pattern = QRegExp("\\.[xyzw]{1,4}\\b");
+	rule.pattern = QRegularExpression("\\.[xyzw]{1,4}\\b");
 	rule.format = toTextCharFormat(_colorScheme._swizzleFormat);
 	_highlightingRules.push_back(rule);
 
-	rule.pattern = QRegExp("\\.[rgba]{1,4}\\b");
+	rule.pattern = QRegularExpression("\\.[rgba]{1,4}\\b");
 	rule.format = toTextCharFormat(_colorScheme._swizzleFormat);
 	_highlightingRules.push_back(rule);
 
-	rule.pattern = QRegExp("\\.[stpq]{1,4}\\b");
+	rule.pattern = QRegularExpression("\\.[stpq]{1,4}\\b");
 	rule.format = toTextCharFormat(_colorScheme._swizzleFormat);
 	_highlightingRules.push_back(rule);
 
@@ -276,19 +276,19 @@ void ShaderSyntaxHighlighter::setColorScheme(ColorScheme colors)
 	addPatternFromList(glslUniform, toTextCharFormat(_colorScheme._typesFormat));
 
 	/* preprocessor */
-	//rule.pattern = QRegExp("\\s*#\\.*\\n");
-	rule.pattern = QRegExp("#.*");
+	//rule.pattern = QRegularExpression("\\s*#\\.*\\n");
+	rule.pattern = QRegularExpression("#.*");
 	rule.format = toTextCharFormat(_colorScheme._preprocessorFormat);
 	_highlightingRules.push_back(rule);
 
 	/* single line comments */
-	rule.pattern = QRegExp("//.*");
+	rule.pattern = QRegularExpression("//.*");
 	rule.format = toTextCharFormat(_colorScheme._commentFormat);
 	_highlightingRules.push_back(rule);
 
 	/* multi line comments */
-	_commentStartExpression = QRegExp("/\\*");
-	_commentEndExpression = QRegExp("\\*/");
+	_commentStartExpression = QRegularExpression("/\\*");
+	_commentEndExpression = QRegularExpression("\\*/");
 
 	rehighlight();
 }
@@ -301,17 +301,19 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 	for (const auto& rule: _highlightingRules)
 	{
 		const auto& expression = rule.pattern;
-		int index = rule.pattern.indexIn(text);
+		auto match = expression.match(text);
+		qsizetype index = match.capturedStart();
 		while (index >= 0)
 		{
-			const int length = expression.matchedLength();
+			const int length = match.capturedLength();
 			assert_r(length > 0);
 
 			lastMatchIndex = index;
 			lastMatchLength = length;
 
 			setFormat(index, length, rule.format);
-			index = expression.indexIn(text, index + length);
+			match = expression.match(text, index + length);
+			index = match.capturedStart();
 		}
 	}
 
@@ -319,12 +321,16 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 
 	int commentStartIndex = 0;
 	if (previousBlockState() != 1) // Comment?
-		commentStartIndex = _commentStartExpression.indexIn(lastMatchIndex != -1 ? text.mid(lastMatchIndex + lastMatchLength) : text);
+	{
+		auto match = _commentStartExpression.match(lastMatchIndex != -1 ? text.mid(lastMatchIndex + lastMatchLength) : text);
+		commentStartIndex = match.capturedStart();
+	}
 
 	while (commentStartIndex >= 0)
 	{
-		const int endIndex = _commentEndExpression.indexIn(text, commentStartIndex);
-		int commentLength;
+		auto match = _commentEndExpression.match(text, commentStartIndex);
+		const int endIndex = match.capturedStart();
+		int commentLength = 0;
 		if (endIndex == -1)
 		{
 			setCurrentBlockState(1); // Spanning comment
@@ -332,10 +338,12 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 		}
 		else
 		{
-			commentLength = endIndex - commentStartIndex + _commentEndExpression.matchedLength();
+			commentLength = endIndex - commentStartIndex + match.capturedLength();
 		}
 
 		setFormat(commentStartIndex, commentLength, toTextCharFormat(_colorScheme._commentFormat));
-		commentStartIndex = _commentStartExpression.indexIn(text, commentStartIndex + commentLength);
+
+		match = _commentStartExpression.match(text, commentStartIndex + commentLength);
+		commentStartIndex = match.capturedStart();
 	}
 }

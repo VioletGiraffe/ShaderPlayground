@@ -4,6 +4,7 @@
 #include "codeeditor/colorscheme.h"
 
 DISABLE_COMPILER_WARNINGS
+#include <QRegularExpression>
 #include <QSyntaxHighlighter>
 RESTORE_COMPILER_WARNINGS
 
@@ -25,12 +26,12 @@ private:
 	ColorScheme _colorScheme;
 
 	struct HighlightingRule {
-		QRegExp pattern;
+		QRegularExpression pattern;
 		QTextCharFormat format;
 	};
 
 	std::vector<HighlightingRule> _highlightingRules;
 
-	QRegExp _commentStartExpression;
-	QRegExp _commentEndExpression;
+	QRegularExpression _commentStartExpression;
+	QRegularExpression _commentEndExpression;
 };
