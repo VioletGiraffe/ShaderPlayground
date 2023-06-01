@@ -22,7 +22,7 @@ ShaderFramework::ShaderFramework() :
 {
 	const QString placeholder = "%1%";
 	const auto placeholderPosition = _shaderTemplate.indexOf(placeholder);
-	const auto linesBeforePlaceholder = lineNumberForPosition(_shaderTemplate, placeholderPosition);
+	const auto linesBeforePlaceholder = lineNumberForPosition(_shaderTemplate, (int)placeholderPosition);
 	_lineNumberOffset = (decltype(_lineNumberOffset))linesBeforePlaceholder + 1 /* why is this required? */;
 }
 

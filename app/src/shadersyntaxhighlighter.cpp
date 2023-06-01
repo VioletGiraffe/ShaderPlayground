@@ -295,9 +295,9 @@ void ShaderSyntaxHighlighter::setColorScheme(ColorScheme colors)
 
 void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 {
-	setFormat(0, text.length(), toTextCharFormat(_colorScheme._otherText));
+	setFormat(0, (int)text.length(), toTextCharFormat(_colorScheme._otherText));
 
-	int lastMatchIndex = -1, lastMatchLength = -1;
+	qsizetype lastMatchIndex = -1, lastMatchLength = -1;
 	for (const auto& rule: _highlightingRules)
 	{
 		const auto& expression = rule.pattern;
@@ -305,13 +305,13 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 		qsizetype index = match.capturedStart();
 		while (index >= 0)
 		{
-			const int length = match.capturedLength();
+			const qsizetype length = match.capturedLength();
 			assert_r(length > 0);
 
 			lastMatchIndex = index;
 			lastMatchLength = length;
 
-			setFormat(index, length, rule.format);
+			setFormat((int)index, (int)length, rule.format);
 			match = expression.match(text, index + length);
 			index = match.capturedStart();
 		}
@@ -319,7 +319,7 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 
 	setCurrentBlockState(0);
 
-	int commentStartIndex = 0;
+	qsizetype commentStartIndex = 0;
 	if (previousBlockState() != 1) // Comment?
 	{
 		auto match = _commentStartExpression.match(lastMatchIndex != -1 ? text.mid(lastMatchIndex + lastMatchLength) : text);
@@ -329,8 +329,8 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 	while (commentStartIndex >= 0)
 	{
 		auto match = _commentEndExpression.match(text, commentStartIndex);
-		const int endIndex = match.capturedStart();
-		int commentLength = 0;
+		const qsizetype endIndex = match.capturedStart();
+		qsizetype commentLength = 0;
 		if (endIndex == -1)
 		{
 			setCurrentBlockState(1); // Spanning comment
@@ -341,7 +341,7 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 			commentLength = endIndex - commentStartIndex + match.capturedLength();
 		}
 
-		setFormat(commentStartIndex, commentLength, toTextCharFormat(_colorScheme._commentFormat));
+		setFormat((int)commentStartIndex, (int)commentLength, toTextCharFormat(_colorScheme._commentFormat));
 
 		match = _commentStartExpression.match(text, commentStartIndex + commentLength);
 		commentStartIndex = match.capturedStart();

@@ -20,7 +20,7 @@ RESTORE_COMPILER_WARNINGS
 
 #include <algorithm>
 
-static QString tokenDelimiters{ R"([~!@#$%?()[]"+-*/.,;:|&<>=^{} )" };
+static const QString tokenDelimiters = QStringLiteral(R"([~!@#$%?()[]"+-*/.,;:|&<>=^{} )");
 
 
 CodeEditorWithSearch::CodeEditorWithSearch(QWidget* parent) : QWidget(parent)
@@ -171,7 +171,7 @@ inline void CodeEditor::insertCompletion(const QString& completion)
 		return;
 
 	QTextCursor tc = textCursor();
-	const int extra = completion.length() - _completer->completionPrefix().length();
+	const auto extra = completion.length() - _completer->completionPrefix().length();
 	tc.movePosition(QTextCursor::Left);
 	tc.movePosition(QTextCursor::EndOfWord);
 	tc.insertText(completion.right(extra));
@@ -241,14 +241,14 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 		return c == '\t' || c == ' ';
 	};
 
-	const auto tabulationForCurrentLine = [this](const QString& text) -> std::pair<int /* startPos */, QString> {
+	const auto tabulationForCurrentLine = [this](const QString& text) -> std::pair<qsizetype /* startPos */, QString> {
 		auto cursor = textCursor();
 		const int pos = cursor.position();
 
-		const int lineStart = text.lastIndexOf('\n', std::max(pos - 1, 0)) + 1;
+		const auto lineStart = text.lastIndexOf('\n', std::max(pos - 1, 0)) + 1;
 		assert_debug_only(pos >= lineStart);
 
-		const int tabulationEnd = static_cast<int>(
+		const qsizetype tabulationEnd = static_cast<qsizetype>(
 			std::find_if(text.begin() + lineStart, text.begin() + pos, [](const QChar c) {
 				return !isTabulation(c);
 			}) - text.begin()

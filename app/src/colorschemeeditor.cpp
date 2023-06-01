@@ -1,7 +1,8 @@
 #include "ColorSchemeEditor.h"
-#include "ui_ColorSchemeEditor.h"
 
 DISABLE_COMPILER_WARNINGS
+#include "ui_ColorSchemeEditor.h"
+
 #include <QSettings>
 RESTORE_COMPILER_WARNINGS
 
