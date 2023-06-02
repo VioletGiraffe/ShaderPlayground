@@ -56,31 +56,11 @@ void ShaderSyntaxHighlighter::setColorScheme(ColorScheme colors)
 	addPatternFromList(glslRepeat, toTextCharFormat(_colorScheme._statementFormat));
 
 	/* Numbers */
-	rule.pattern = QRegularExpression("\\b\\d+(u{,1}l{0,2}|ll{,1}u)\\b");
+	rule.pattern = QRegularExpression(R"([+-]?\d+(U|u)?(\.\d+)?)"); // Integer and fixed-point literals
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(rule);
 
-	rule.pattern = QRegularExpression("\\b0x\\x+(u{,1}l{0,2}|ll{,1}u)\\b");
-	rule.format = toTextCharFormat(_colorScheme._numberFormat);
-	_highlightingRules.push_back(rule);
-
-	rule.pattern = QRegularExpression("\\b\\d+f\\b");
-	rule.format = toTextCharFormat(_colorScheme._numberFormat);
-	_highlightingRules.push_back(rule);
-
-	rule.pattern = QRegularExpression("\\b\\d+\\.\\d*(e[-+]{,1}\\d+){,1}[fl]{,1}\\b");
-	rule.format = toTextCharFormat(_colorScheme._numberFormat);
-	_highlightingRules.push_back(rule);
-
-	rule.pattern = QRegularExpression("\\b\\.\\d+(e[-+]{,1}\\d+){,1}[fl]{,1}\\b");
-	rule.format = toTextCharFormat(_colorScheme._numberFormat);
-	_highlightingRules.push_back(rule);
-
-	rule.pattern = QRegularExpression("\\b\\d+e[-+]{,1}\\d+[fl]{,1}\\b");
-	rule.format = toTextCharFormat(_colorScheme._numberFormat);
-	_highlightingRules.push_back(rule);
-
-	rule.pattern = QRegularExpression("\\b0\\o*[89]\\d*\\b");
+	rule.pattern = QRegularExpression(R"([+-]?\d+(\.\d*)?([eE][+-]?\d+)?f?)");
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(rule);
 
@@ -289,6 +269,11 @@ void ShaderSyntaxHighlighter::setColorScheme(ColorScheme colors)
 	/* multi line comments */
 	_commentStartExpression = QRegularExpression("/\\*");
 	_commentEndExpression = QRegularExpression("\\*/");
+
+	for (const auto& r : _highlightingRules)
+	{
+		assert(r.pattern.isValid());
+	}
 
 	rehighlight();
 }
