@@ -48,6 +48,8 @@ private:
 	CTimeElapsed _timeSinceLastFrame, _totalRunTime;
 	std::unique_ptr<QOpenGLShaderProgram> _program;
 	std::unique_ptr<QOpenGLShader> _fragmentShader;
+	std::unique_ptr<QOpenGLShader> _vertexShader;
+	GLuint _vbo = 0, _vao = 0;
 
 	QTimer* _timer = nullptr;
 

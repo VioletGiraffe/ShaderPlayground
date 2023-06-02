@@ -1,7 +1,8 @@
 #include "shaderrenderwidget.h"
 
-#include "assert/advanced_assert.h"
 #include "utils/resources.h"
+
+#include "assert/advanced_assert.h"
 
 DISABLE_COMPILER_WARNINGS
 #include <QApplication>
@@ -65,12 +66,27 @@ ShaderRenderWidget::~ShaderRenderWidget()
 // Returns the compilation error message, if any
 QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 {
-#ifndef _WIN32
 	std::lock_guard locker{ _shaderProgramMutex };
+
+	// Intel driver crashes when calling program->bind() after updating the frag shader, so I must re-create the whole program instead.
+	// It is, unfortunately, quite slow and makes typing difficult, especially since the mutex has to be locked for the duration.
+
+#ifdef _WIN32
+	static constexpr bool isWindows = true;
+#else
+	static constexpr bool isWindows = false;
 #endif
 
-	if (_program->isLinked())
-		_program->removeShader(_fragmentShader.get());
+	if (isWindows && _gpuName.contains("Intel"))
+	{
+		_program = std::make_unique<QOpenGLShaderProgram>();
+		assert_r(_program->addShader(_vertexShader.get()));
+	}
+	else // The normal way - reuse the same program object and only replace the frag shader
+	{
+		if (_program->isLinked())
+			_program->removeShader(_fragmentShader.get());
+	}
 
 	QString shaderCompilationError;
 	if (!_fragmentShader->compileSourceCode(shaderSource))
@@ -114,8 +130,7 @@ void ShaderRenderWidget::showEvent(QShowEvent *event)
 
 void ShaderRenderWidget::initializeGL()
 {
-	_program = std::make_unique<QOpenGLShaderProgram>();
-	_fragmentShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Fragment);
+	std::lock_guard locker{ _shaderProgramMutex };
 
 	assert_r(initializeOpenGLFunctions());
 
@@ -125,8 +140,14 @@ void ShaderRenderWidget::initializeGL()
 		<< _gpuName << '\n'
 		<< (const char*)this->glGetString(GL_VERSION);
 
-	if (!_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/resources/default_vertex_shader.vsh"))
+	_vertexShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Vertex);
+	if (!_vertexShader->compileSourceFile(":/resources/default_vertex_shader.vsh"))
 		qDebug() << "Failed to add vertex shader:\n" << _program->log();
+
+	_program = std::make_unique<QOpenGLShaderProgram>();
+	assert_r(_program->addShader(_vertexShader.get()));
+
+	_fragmentShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Fragment);
 
 	connect(_timer, &QTimer::timeout, this, (void (ShaderRenderWidget::*)()) &ShaderRenderWidget::update);
 	_timer->start(1000 / TargetFPS);
@@ -146,13 +167,8 @@ void ShaderRenderWidget::initializeGL()
 	}
 #endif
 
-	GLuint vbo;
-	this->glGenBuffers(1, &vbo);
-	this->glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	GLuint vao;
-	this->glGenVertexArrays(1, &vao);
-	this->glBindVertexArray(vao);
+	this->glGenBuffers(1, &_vbo);
+	this->glGenVertexArrays(1, &_vao);
 }
 
 void ShaderRenderWidget::resizeGL(int w, int h)
@@ -167,9 +183,11 @@ void ShaderRenderWidget::paintGL()
 {
 	QElapsedTimer timer;
 	timer.start();
-#ifndef _WIN32
-	std::lock_guard locker{ _shaderProgramMutex };
-#endif
+
+	if (!_shaderProgramMutex.try_lock())
+		return;
+
+	std::lock_guard lock{ _shaderProgramMutex, std::adopt_lock };
 
 	_frameRenderingPeriod = _timeSinceLastFrame.elapsed<std::chrono::microseconds>() / 1000.0f;
 	_timeSinceLastFrame.start();
@@ -182,6 +200,9 @@ void ShaderRenderWidget::paintGL()
 
 	if (!_program->bind())
 		qDebug() << "Failed to bind the program\n:" << _program->log();
+
+	this->glBindBuffer(GL_ARRAY_BUFFER, _vbo);
+	this->glBindVertexArray(_vao);
 
 	const float w = (float)width(), h = (float)height();
 	const GLfloat vertices[2 * 3 * 3] {
@@ -235,6 +256,12 @@ void ShaderRenderWidget::paintGL()
 
 	this->glDisableVertexAttribArray(0);
 	LogGlError;
+
+	// Unbind the program
+	this->glUseProgram(0);
+
+	this->glBindVertexArray(0);
+	this->glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	_frameTimeNanosec = timer.nsecsElapsed();
 }
