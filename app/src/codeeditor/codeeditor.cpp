@@ -246,7 +246,8 @@ void CodeEditor::keyPressEvent(QKeyEvent* event)
 		const int pos = cursor.position();
 
 		const auto lineStart = text.lastIndexOf('\n', std::max(pos - 1, 0)) + 1;
-		assert_debug_only(pos >= lineStart);
+		if (pos < lineStart) // Can happen when pressing Enter at the start of the file
+			return { -1, QString{} };
 
 		const qsizetype tabulationEnd = static_cast<qsizetype>(
 			std::find_if(text.begin() + lineStart, text.begin() + pos, [](const QChar c) {
