@@ -62,7 +62,7 @@ void ShaderSyntaxHighlighter::setColorScheme(ColorScheme colors)
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(std::move(rule));
 
-	rule.pattern = QRegularExpression(R"([+-]?\d+(\.\d*)?([eE][+-]?\d+)?f?)");
+	rule.pattern = QRegularExpression(R"([+-]?\d+(\.\d*)?([eE][+-]?\d+)?f?)"); // Scientific FP notation
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(std::move(rule));
 
@@ -269,8 +269,8 @@ void ShaderSyntaxHighlighter::setColorScheme(ColorScheme colors)
 	_highlightingRules.push_back(std::move(rule));
 
 	/* multi line comments */
-	_commentStartExpression = QRegularExpression("/\\*");
-	_commentEndExpression = QRegularExpression("\\*/");
+	_commentStartExpression = QRegularExpression(R"(/\*)");
+	_commentEndExpression = QRegularExpression(R"(\*/)");
 
 	for (const auto& r : _highlightingRules)
 	{
@@ -307,9 +307,9 @@ void ShaderSyntaxHighlighter::highlightBlock(const QString& text)
 	setCurrentBlockState(0);
 
 	qsizetype commentStartIndex = 0;
-	if (previousBlockState() != 1) // Comment?
+	if (const auto prevState = previousBlockState(); prevState != 1) // Comment?
 	{
-		auto match = _commentStartExpression.match(lastMatchIndex != -1 ? text.mid(lastMatchIndex + lastMatchLength) : text);
+		auto match = _commentStartExpression.match(text);
 		commentStartIndex = match.capturedStart();
 	}
 
