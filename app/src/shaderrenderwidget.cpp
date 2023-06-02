@@ -40,8 +40,7 @@ ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) :
 
 	auto fmt = QSurfaceFormat::defaultFormat();
 	fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
-	fmt.setMajorVersion(4);
-	fmt.setMinorVersion(5);
+	fmt.setVersion(3, 1);
 #ifdef _DEBUG
 	fmt.setOption(QSurfaceFormat::DebugContext);
 #endif
@@ -51,7 +50,6 @@ ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) :
 	{
 		qDebug() << "Failed to set the requested format; actual format:" << actualFmt;
 		assert_unconditional_r("Failed to set the requested format");
-
 	}
 
 	_lastWorkingShaderCode = textFromResource(":/resources/blank_shader.fsh");
@@ -59,9 +57,9 @@ ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) :
 
 ShaderRenderWidget::~ShaderRenderWidget()
 {
-	// Unbind the binds
-	this->glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// Unbind the manual binds
 	this->glBindVertexArray(0);
+	this->glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // Returns the compilation error message, if any
@@ -85,8 +83,6 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 
 	if (!_program->addShader(_fragmentShader.get()))
 		return shaderCompilationError + "\nFailed to add fragment shader.\n\n" + _program->log();
-
-	_program->bindAttributeLocation("vertexPosition", _vertexArray);
 
 	if (!_program->link())
 		return shaderCompilationError + "\nFailed to link the program.\n\n" + _program->log();
@@ -118,19 +114,19 @@ void ShaderRenderWidget::showEvent(QShowEvent *event)
 
 void ShaderRenderWidget::initializeGL()
 {
-	initializeOpenGLFunctions();
-
 	_program = std::make_unique<QOpenGLShaderProgram>();
 	_fragmentShader = std::make_unique<QOpenGLShader>(QOpenGLShader::Fragment);
 
-	if (!_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/resources/default_vertex_shader.vsh"))
-		qDebug() << "Failed to add vertex shader:\n" << _program->log();
+	assert_r(initializeOpenGLFunctions());
 
 	_gpuName = (const char*)this->glGetString(GL_RENDERER);
 
 	qDebug() << '\n'
 		<< _gpuName << '\n'
 		<< (const char*)this->glGetString(GL_VERSION);
+
+	if (!_program->addShaderFromSourceFile(QOpenGLShader::Vertex, ":/resources/default_vertex_shader.vsh"))
+		qDebug() << "Failed to add vertex shader:\n" << _program->log();
 
 	connect(_timer, &QTimer::timeout, this, (void (ShaderRenderWidget::*)()) &ShaderRenderWidget::update);
 	_timer->start(1000 / TargetFPS);
@@ -150,15 +146,13 @@ void ShaderRenderWidget::initializeGL()
 	}
 #endif
 
-	this->glGenVertexArrays(1, &_vertexArray);
-	this->glBindVertexArray(_vertexArray);
-	GLuint buff = 0;
-	this->glGenBuffers(1, &buff);
-	this->glBindBuffer(GL_ARRAY_BUFFER, buff);
-	//this->glVertexArrayVertexBuffer(_vertexArray, 0, buff, 0, 3 * sizeof(float));
-	//this->glVertexArrayAttribBinding(_vertexArray, 0, 0);
-	//this->glVertexArrayAttribFormat(_vertexArray, 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
-	//this->glVertexArrayBindingDivisor(_vertexArray, 0, 0);
+	GLuint vbo;
+	this->glGenBuffers(1, &vbo);
+	this->glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	GLuint vao;
+	this->glGenVertexArrays(1, &vao);
+	this->glBindVertexArray(vao);
 }
 
 void ShaderRenderWidget::resizeGL(int w, int h)
@@ -199,18 +193,18 @@ void ShaderRenderWidget::paintGL()
 		0.0f, 0.0f, 0.0f
 	};
 
+	this->glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+	this->glEnableVertexAttribArray(0);
+	this->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
 	QMatrix4x4 pmvMatrix;
 	pmvMatrix.ortho(rect());
-
-	_program->enableAttributeArray("vertexPosition");
-	LogGlError;
-
-	_program->setAttributeArray("vertexPosition", vertices, 3);
-	LogGlError;
 	_program->setUniformValue("matrix", pmvMatrix);
 	LogGlError;
+
 	_program->setUniformValue("iResolution", size());
 	LogGlError;
+
 	const auto mousePos = mapFromGlobal(QCursor::pos());
 	if (QApplication::mouseButtons() & (Qt::LeftButton | Qt::RightButton))
 	{
@@ -236,9 +230,10 @@ void ShaderRenderWidget::paintGL()
 	LogGlError;
 
 	this->glDrawArrays(GL_TRIANGLES, 0, 6);
+	//this->glUseProgram(_program->programId());
 	LogGlError;
 
-	_program->disableAttributeArray("vertexPosition");
+	this->glDisableVertexAttribArray(0);
 	LogGlError;
 
 	_frameTimeNanosec = timer.nsecsElapsed();

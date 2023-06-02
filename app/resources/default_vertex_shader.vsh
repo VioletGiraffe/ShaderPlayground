@@ -1,15 +1,16 @@
+#version 130
 #ifdef GL_ES
 precision highp int;
 precision highp float;
 #endif
 
-attribute highp vec4 vertexPosition;
+in vec3 vertexPosition;
 uniform highp mat4 matrix;
 
-varying highp vec2 pixelPosition;
+highp out vec2 pixelPosition;
 
 void main()
 {
-	gl_Position = matrix * vertexPosition;
+	gl_Position = matrix * vec4(vertexPosition, 1.0);
 	pixelPosition = vertexPosition.xy;
 }

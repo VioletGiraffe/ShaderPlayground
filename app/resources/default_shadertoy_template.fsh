@@ -1,9 +1,12 @@
+#version 130
 #ifdef GL_ES
 precision highp int;
 precision highp float;
 #endif
 
-varying highp vec2 pixelPosition;
+out vec4 outColor4;
+
+highp in vec2 pixelPosition;
 uniform mediump vec2 iResolution;
 uniform mediump vec4 mousePosition;
 
@@ -24,5 +27,5 @@ float iGlobalTime = totalTime / 1000.0;
 
 void main()
 {
-	mainImage(gl_FragColor, vec2(pixelPosition.x, iResolution.y - pixelPosition.y));
+	mainImage(outColor4, vec2(pixelPosition.x, iResolution.y - pixelPosition.y));
 }
