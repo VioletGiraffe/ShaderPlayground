@@ -14,8 +14,16 @@ extern "C"
 	__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 
+static QtMessageHandler g_qtMessageHandler = nullptr;
+
+static void myMessageOutput(QtMsgType type, const QMessageLogContext& context, const QString& msg)
+{
+	g_qtMessageHandler(type, context, msg);
+}
+
 int main(int argc, char *argv[])
 {
+	g_qtMessageHandler = qInstallMessageHandler(&myMessageOutput);
 	qSetMessagePattern("%{function}: %{message}");
 
 	AdvancedAssert::setLoggingFunc([](const char* message) {

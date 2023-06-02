@@ -10,6 +10,7 @@ DISABLE_COMPILER_WARNINGS
 #include <QElapsedTimer>
 #include <QMatrix4x4>
 #include <QMouseEvent>
+#include <QOpenGLDebugLogger>
 #include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
 #include <QTimer>
@@ -18,12 +19,14 @@ RESTORE_COMPILER_WARNINGS
 
 static constexpr int TargetFPS = 60;
 
-#define LogGlError \
-{\
-	const auto err = this->glGetError(); \
-	if (err != GL_NO_ERROR) \
-		qDebug() << "GL error" << err << "at" << __FUNCTION__ << __LINE__;\
-}
+//#define LogGlError \
+//{\
+//	const auto err = this->glGetError(); \
+//	if (err != GL_NO_ERROR) \
+//		qDebug() << "GL error" << err << "at" << __FUNCTION__ << __LINE__;\
+//}
+
+#define LogGlError (void)0
 
 ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) :
 	QOpenGLWidget(parent)
@@ -39,6 +42,9 @@ ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) :
 	fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
 	fmt.setMajorVersion(4);
 	fmt.setMinorVersion(5);
+#ifdef _DEBUG
+	fmt.setOption(QSurfaceFormat::DebugContext);
+#endif
 	setFormat(fmt);
 
 	if (const auto actualFmt = format(); actualFmt != fmt)
@@ -51,7 +57,12 @@ ShaderRenderWidget::ShaderRenderWidget(QWidget *parent) :
 	_lastWorkingShaderCode = textFromResource(":/resources/blank_shader.fsh");
 }
 
-ShaderRenderWidget::~ShaderRenderWidget() = default;
+ShaderRenderWidget::~ShaderRenderWidget()
+{
+	// Unbind the binds
+	this->glBindBuffer(GL_ARRAY_BUFFER, 0);
+	this->glBindVertexArray(0);
+}
 
 // Returns the compilation error message, if any
 QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
@@ -74,7 +85,10 @@ QString ShaderRenderWidget::setFragmentShader(const QString& shaderSource)
 
 	if (!_program->addShader(_fragmentShader.get()))
 		return shaderCompilationError + "\nFailed to add fragment shader.\n\n" + _program->log();
-	else if (!_program->link())
+
+	_program->bindAttributeLocation("vertexPosition", _vertexArray);
+
+	if (!_program->link())
 		return shaderCompilationError + "\nFailed to link the program.\n\n" + _program->log();
 
 	return shaderCompilationError;
@@ -120,6 +134,31 @@ void ShaderRenderWidget::initializeGL()
 
 	connect(_timer, &QTimer::timeout, this, (void (ShaderRenderWidget::*)()) &ShaderRenderWidget::update);
 	_timer->start(1000 / TargetFPS);
+
+#ifdef _DEBUG
+	auto* ctx = QOpenGLContext::currentContext();
+	qInfo() << ctx->format();
+	if (ctx->hasExtension(QByteArrayLiteral("GL_KHR_debug")))
+	{
+		QOpenGLDebugLogger* logger = new QOpenGLDebugLogger(this);
+		logger->initialize(); // initializes in the current context, i.e. ctx
+		connect(logger, &QOpenGLDebugLogger::messageLogged, this, [](const QOpenGLDebugMessage& msg) -> int {
+			qWarning() << msg;
+			return 0;
+		}, Qt::DirectConnection);
+		logger->startLogging(QOpenGLDebugLogger::SynchronousLogging);
+	}
+#endif
+
+	this->glGenVertexArrays(1, &_vertexArray);
+	this->glBindVertexArray(_vertexArray);
+	GLuint buff = 0;
+	this->glGenBuffers(1, &buff);
+	this->glBindBuffer(GL_ARRAY_BUFFER, buff);
+	//this->glVertexArrayVertexBuffer(_vertexArray, 0, buff, 0, 3 * sizeof(float));
+	//this->glVertexArrayAttribBinding(_vertexArray, 0, 0);
+	//this->glVertexArrayAttribFormat(_vertexArray, 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float));
+	//this->glVertexArrayBindingDivisor(_vertexArray, 0, 0);
 }
 
 void ShaderRenderWidget::resizeGL(int w, int h)
@@ -175,7 +214,6 @@ void ShaderRenderWidget::paintGL()
 	const auto mousePos = mapFromGlobal(QCursor::pos());
 	if (QApplication::mouseButtons() & (Qt::LeftButton | Qt::RightButton))
 	{
-		qDebug() << QApplication::mouseButtons();
 		_lastMousePosWithButtonPressed = mousePos;
 	}
 

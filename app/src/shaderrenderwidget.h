@@ -4,7 +4,7 @@
 #include "compiler/compiler_warnings_control.h"
 
 DISABLE_COMPILER_WARNINGS
-#include <QOpenGLFunctions>
+#include <qopenglfunctions_4_5_compatibility.h>
 #include <QOpenGLWidget>
 RESTORE_COMPILER_WARNINGS
 
@@ -16,7 +16,7 @@ class QOpenGLShader;
 class QOpenGLShaderProgram;
 class QTimer;
 
-class ShaderRenderWidget final : public QOpenGLWidget, protected QOpenGLFunctions
+class ShaderRenderWidget final : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Compatibility
 {
 public:
 	explicit ShaderRenderWidget(QWidget *parent = nullptr);
@@ -48,6 +48,7 @@ private:
 	CTimeElapsed _timeSinceLastFrame, _totalRunTime;
 	std::unique_ptr<QOpenGLShaderProgram> _program;
 	std::unique_ptr<QOpenGLShader> _fragmentShader;
+	GLuint _vertexArray = 0;
 
 	QTimer* _timer = nullptr;
 
