@@ -58,11 +58,11 @@ void ShaderSyntaxHighlighter::setColorScheme(ColorScheme colors)
 	HighlightingRule rule;
 
 	/* Numbers */
-	rule.pattern = QRegularExpression(R"([+-]?\d+(U|u)?(\.\d+)?)"); // Integer and fixed-point literals
+	rule.pattern = QRegularExpression(R"((?<![A-Za-z_])[+-]?\d+(U|u)?(\.\d+)?)"); // Integer and fixed-point literals
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(std::move(rule));
 
-	rule.pattern = QRegularExpression(R"([+-]?\d+(\.\d*)?([eE][+-]?\d+)?f?)"); // Scientific FP notation
+	rule.pattern = QRegularExpression(R"((?<![A-Za-z_])[+-]?\d+(\.\d*)?([eE][+-]?\d+)?f?)"); // Scientific FP notation
 	rule.format = toTextCharFormat(_colorScheme._numberFormat);
 	_highlightingRules.push_back(std::move(rule));
 
