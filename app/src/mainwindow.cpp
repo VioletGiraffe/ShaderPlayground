@@ -92,7 +92,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	editorPalette.setColor(QPalette::Active, QPalette::Base, Qt::transparent);
 	editorPalette.setColor(QPalette::Inactive, QPalette::Base, Qt::transparent);
 	_shaderEditorWidget->setPalette(editorPalette);
-	_shaderEditorWidget->setTextBackgroundColor(QColor(20, 20, 20, 160));
+	_shaderEditorWidget->setTextBackgroundColor(QColor(10, 10, 10, 100));
 
 	_shaderEditorWidget->setTabStopDistance(static_cast<qreal>(4ull * _shaderEditorWidget->fontMetrics().horizontalAdvance(' ')));
 
