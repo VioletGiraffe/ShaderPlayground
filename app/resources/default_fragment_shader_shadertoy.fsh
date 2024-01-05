@@ -4,11 +4,17 @@
 vec2 iResolution: visible area {x, y} size in pixels, {0,0} is bottom left
 vec4 iMouse: mouse coordinates {x, y} in pixels, {0,0} is bottom left.
 	 iMouse.zw is the coordinates of the last mous click.
-float iGlobalTime: time in seconds since the shader has started working 
+float iGlobalTime: time in seconds since the shader has started working
 float iTime: an alias for iGlobalTime;
 float iTimeDelta: time since the previous frame in seconds
 
  ***********************************************************************************/
+
+#version 130
+#ifdef GL_ES
+precision highp int;
+precision highp float;
+#endif
 
 vec3 linearToSRGB(float r, float g, float b)
 {

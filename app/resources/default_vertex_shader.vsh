@@ -11,6 +11,6 @@ highp out vec2 pixelPosition;
 
 void main()
 {
-	gl_Position = matrix * vec4(vertexPosition, 1.0);
+	gl_Position = matrix * vec4(vertexPosition, 1.0f);
 	pixelPosition = vertexPosition.xy;
 }

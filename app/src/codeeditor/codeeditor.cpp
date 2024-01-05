@@ -1,7 +1,6 @@
 #include "codeeditor.h"
 
 #include "string/stringutils.h"
-#include "assert/advanced_assert.h"
 #include "math/math.hpp"
 #include "container/algorithms.hpp"
 
@@ -105,7 +104,7 @@ CodeEditor::CodeEditor(QWidget *parent) : QPlainTextEdit(parent)
 			if (tokenDelimiters.contains(charAtCursor))
 				updateTokensList(text);
 		}
-	}); 
+	});
 
 	updateLineNumberAreaWidth(0);
 	highlightCurrentLine();
